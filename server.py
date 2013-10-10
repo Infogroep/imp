@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from twisted.internet import reactor, protocol
 from twisted.web import server
 from twisted.spread import pb
@@ -82,9 +84,17 @@ class ScriptProtocol(protocol.ProcessProtocol, pb.Viewable):
 		self.errortext = self.errortext + error
 
 	def outReceived(self, output):
-#		if not got_content_type:
-
-		self.request.write(output)
+		if not self.got_content_type:
+			newline_loc = output.find('\n')
+			if newline_loc == -1:
+				self.content_type += output
+			else:
+				self.content_type += output[:newline_loc]
+				self.request.setHeader("Content-Type",self.content_type)
+				self.got_content_type = True
+				self.request.write(output[newline_loc+1:])
+		else:
+			self.request.write(output)
 
 	def processEnded(self, reason):
 		if reason.value.exitCode != 0:

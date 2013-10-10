@@ -2,6 +2,7 @@
 
 from routing.routing import Router
 
+print("text/plain")
 print("Hey")
 
 def test(e):

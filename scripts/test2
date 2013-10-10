@@ -1,5 +1,6 @@
 #!/bin/bash
 
+echo "text/plain"
 echo "Error output" 1>&2-
 
 echo "Arguments: " "$@"

@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+
+print "application/json"
+
+import sys
+from pyalsa import alsamixer
+
+mixer = alsamixer.Mixer()
+mixer.attach()
+mixer.load()
+
+action = sys.argv[1].lower()
+content_type_in = sys.argv[2]
+
+element = alsamixer.Element(mixer, "Master")
+(min_vol,max_vol) = element.get_volume_range()
+
+def scaled_to_real(x):
+	return min_vol + (max_vol - min_vol) * x / 100
+
+def real_to_scaled(x):
+	return (x - min_vol) * 100 / (max_vol - min_vol)
+
+if action == "get":
+	sys.stdout.write(str(real_to_scaled(element.get_volume())))
+elif action == "put":
+	element.set_volume_all(scaled_to_real(int(sys.stdin.read())))
+else:
+	sys.stderr.write("Onbekend commando (Thierryyyy, hooooooo!)")
+	exit(1)
