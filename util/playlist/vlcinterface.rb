@@ -20,7 +20,9 @@ class VLCInterface
 	end
 
 	def is_playing?
+		@vlc.readlines
 		@vlc.puts "is_playing?"
+		@vlc.gets.to_i == 1
 	end
 
 	def get_title
