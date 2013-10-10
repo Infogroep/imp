@@ -9,8 +9,8 @@ class Player
 
 	def play(uri)
 		puts "Uwen server eeft et ook ontvangen. Ge wilt #{uri}"
-		@interface.play @playlist.pop.uri
-		#@interface.play uri
+		#@interface.play @playlist.pop.uri
+		@interface.play uri
 	end
 
 	def stop

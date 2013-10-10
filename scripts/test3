@@ -1,0 +1,14 @@
+#!/usr/bin/env python
+
+from routing.routing import Router
+
+print("text/plain")
+print("Hey")
+
+def test(e):
+	print("Test success: " + e)
+
+r = Router()
+r.get([":really","success"], lambda b: test(b[":really"]))
+r.match([":really","success",":sometimes"], lambda b: test(b[":really"] + " " + b[":sometimes"]), {"via": "patch"})
+r.finalize()
