@@ -1,0 +1,4 @@
+require 'rubygems'
+require 'daemons'
+
+Daemons.run('playlist/playlist_daemon.rb')
