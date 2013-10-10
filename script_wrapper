@@ -18,6 +18,8 @@ echo "$HOME"
 #rvm list
 #
 
+export PYTHONPATH="./util"
+
 script="$1"
 shift
 "$script" "$@"
