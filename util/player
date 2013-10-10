@@ -20,8 +20,8 @@ OptionParser.new do |opts|
 		playlist.pause
 	end
 
-	opts.on("--is_playing?") do
-		playlist.is_playing?
+	opts.on("--is_playing") do
+		puts playlist.is_playing?
 	end
 
 	opts.on("--get_title") do
