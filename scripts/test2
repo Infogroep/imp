@@ -1,0 +1,5 @@
+#!/bin/bash
+
+echo "Error output" 1>&2-
+
+echo "Arguments: " "$@"

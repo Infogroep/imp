@@ -1,4 +1,9 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
 require 'grooveshark'
+require 'optparse'
+require_relative '../../util/routing/routing'
 
 @client = Grooveshark::Client.new
 session = @client.session
@@ -20,4 +25,8 @@ puts url
 	spawn('util/player','--play',url)
 end
 
-play_playlist(84280827)
+#play_playlist(84280827)
+
+Routing::route do |r|
+	r.get [:playlist_id,"play"] { |b| play_playlist b[:playlist_id].to_i }
+end
