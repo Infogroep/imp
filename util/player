@@ -1,0 +1,48 @@
+#!/usr/bin/env ruby
+require 'drb/drb'
+require 'optparse'
+
+DRb.start_service
+
+playlist = DRbObject.new_with_uri("drbunix:/var/tmp/imp-player.socket")
+
+OptionParser.new do |opts|
+	opts.on("--play PATH") do |path|
+		puts "Uw client heeft et ontvangen, ge wilt spelen #{path}"
+		playlist.play(path)
+	end
+
+	opts.on("--stop") do 
+		playlist.stop
+	end
+
+	opts.on("--pause") do
+		playlist.pause
+	end
+
+	opts.on("--is_playing?") do
+		playlist.is_playing?
+	end
+
+	opts.on("--get_title") do
+		playlist.get_title
+	end
+
+	opts.on("--get_time") do
+		playlist.get_time
+	end
+
+	opts.on("--get_length") do
+		playlist.get_length
+	end
+
+	opts.on("--seek SECONDS") do |seconds|
+		playlist.seek(seconds)
+	end
+	
+	opts.on("--volume X") do |x|
+		playlist.volume(x)
+	end
+
+end.parse!
+
