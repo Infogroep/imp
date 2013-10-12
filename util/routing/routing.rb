@@ -1,6 +1,6 @@
 module Routing
 	class Router
-		def match(rule,options = {})
+		def match(rule = [],options = {})
 			realargs = ARGV[2..-1]
 
 			incoming_method = ARGV[0].downcase.to_sym
@@ -14,7 +14,7 @@ module Routing
 			end
 		end
 
-		def method_missing(methId,rule,options = {})
+		def method_missing(methId,rule = [],options = {})
 			options[:via] = [methId]
 			match(rule,options) { |b| yield b }
 		end
