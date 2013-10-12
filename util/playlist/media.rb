@@ -1,6 +1,6 @@
 class Media
 
-	def initialize(uri, options)
+	def initialize(uri, options={})
 		@uri = uri
 		@user = options[:user] || " "
 		@title = options[:title] || " "

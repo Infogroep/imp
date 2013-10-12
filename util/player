@@ -4,45 +4,84 @@ require 'optparse'
 
 DRb.start_service
 
-playlist = DRbObject.new_with_uri("drbunix:/var/tmp/imp-player.socket")
+player = DRbObject.new_with_uri("drbunix:/var/tmp/imp-player.socket")
 
 OptionParser.new do |opts|
 	opts.on("--play PATH") do |path|
 		puts "Uw client heeft et ontvangen, ge wilt spelen #{path}"
-		playlist.play(path)
+		player.play(path)
 	end
 
 	opts.on("--stop") do 
-		playlist.stop
+		player.stop
 	end
 
 	opts.on("--pause") do
-		playlist.pause
+		player.pause
 	end
 
 	opts.on("--is_playing") do
-		puts playlist.is_playing?
+		puts player.is_playing?
 	end
 
 	opts.on("--get_title") do
-		playlist.get_title
+		player.get_title
 	end
 
 	opts.on("--get_time") do
-		playlist.get_time
+		player.get_time
 	end
 
 	opts.on("--get_length") do
-		playlist.get_length
+		player.get_length
 	end
 
 	opts.on("--seek SECONDS") do |seconds|
-		playlist.seek(seconds)
+		player.seek(seconds)
 	end
 	
 	opts.on("--volume X") do |x|
-		playlist.volume(x)
+		player.volume(x)
 	end
 
+	opts.on("--skip") do
+		player.skip
+	end
+
+	opts.on("--flush") do
+		player.flush
+	end
+
+	opts.on("--magic_shuffle X") do |x|
+		player.magic_shuffle(x)
+	end
+
+	opts.on("--shuffle") do 
+		player.shuffle
+	end
+
+	opts.on("--dequeue ITEM") do |item|
+		player.dequeue(item)
+	end
+
+	opts.on("--playlist") do
+		player.playlist
+	end
+	
+	opts.on("--history") do
+		player.history
+	end
+
+	opts.on("--previous") do
+		player.previous
+	end
+
+	opts.on("--replay") do
+		player.replay
+	end
+
+	opts.on("--enqueue ITEM") do |item|
+		player.enqueue(item)
+	end
 end.parse!
 

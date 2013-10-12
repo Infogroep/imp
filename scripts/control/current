@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+
+puts "application/json"
+require 'optparse'
+require_relative '../../util/routing/routing'
+
+def pause
+	puts "Pause!"
+	spawn('util/player','--pause')
+end
+
+def stop
+	puts "Stop!"
+	spawn('util/player','--stop')
+end
+
+def skip
+	puts "Skip!"
+	spawn('util/player','--skip')
+end
+
+def previous
+	puts "Previous!"
+	spawn('util/player','--previous')
+end
+
+def replay
+	puts "Replay!"
+	spawn('util/player', '--replay')
+end
+
+Routing::route do |r|
+	r.pause { pause }
+	r.stop { stop }
+	r.skip { skip }
+	r.previous { previous }
+	r.replay { replay }
+end
