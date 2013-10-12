@@ -20,11 +20,13 @@ def play_playlist(id)
 	playlist.load_songs
 	songs = playlist.songs
 	
-	song = songs.first
-	url = @client.get_song_url(song)
-puts url
-
-	spawn('util/player','--play',url)
+	#song = songs.first
+	songs.each do |song|
+		url = @client.get_song_url(song)
+		puts url
+		spawn('util/player','--enqueue',url)
+	end
+	spawn('util/player','--skip')
 end
 
 #play_playlist(84280827)

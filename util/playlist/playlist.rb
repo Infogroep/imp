@@ -12,7 +12,7 @@ class Playlist
 
 	def pop
 		@history<<@queue.first
-		@queue.take(1)
+		@queue.shift
 	end
 	
 	def previous

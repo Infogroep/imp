@@ -1,5 +1,6 @@
 require_relative 'playlist'
 require_relative 'vlcinterface'
+require_relative 'media'
 
 class Player
 	def initialize()
@@ -47,7 +48,7 @@ class Player
 
 	def skip
 		stop
-		play(playlist.pop.uri)
+		play(@playlist.pop.uri)
 	end
 
 	def flush
@@ -63,7 +64,7 @@ class Player
 		@playlist.shuffle
 	end
 
-	def dequeue
+	def dequeue(item)
 		@playlist.remove(item)
 	end
 
@@ -75,10 +76,27 @@ class Player
 		@playlist.history
 	end
 
-	def enqueue(item)
+	def previous
+		@playlist.history.pop
+		prev = @playlist.history.pop
+		@playlist.add(prev)
+		@playlist.move_to_front(prev)
+		skip
+	end
+
+	def replay
+		prev = @playlist.history.pop
+		@playlist.add(prev)
+		@playlist.move_to_front(prev)
+		skip
+	end
+	
+	def enqueue(uri)
+		#fingerprinting
+		item = Media.new uri
 		@playlist.add(item)
-		if is_playing?
-			play
-		end
+		#if is_playing?
+		#	play
+		#end
 	end
 end
