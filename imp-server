@@ -108,5 +108,5 @@ class ScriptProtocol(protocol.ProcessProtocol, pb.Viewable):
 
 root = Script()
 factory = server.Site(root)
-reactor.listenTCP(8880, factory)
+reactor.listenTCP(8080, factory)
 reactor.run()
