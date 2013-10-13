@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [[ "$1" == "--here" ]]; then
-	file="$(util/player reserve-file)"
+	file="$(util/store reserve-file)"
 	uri="$1"
 
 	{

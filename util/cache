@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+require_relative 'routing/routing'
+
+Routing::route ARGV do |r|
+	r.reserve_file { reserve_file }
+	r.cleanup { cleanup }
+	r.remove_file [:file], file: /[0-9a-f]+/ { remove_file b[:file] }
+end

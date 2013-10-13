@@ -61,6 +61,5 @@ Routing::route ARGV do |r|
 	r.previous { player.previous }
 	r.replay { player.replay }
 	r.enqueue [:item] { |b| player.enqueue(b[:item]) }
-	r.reserve_file { puts player.reserve_file }
 	r.reevaluate { player.reevaluate }
 end

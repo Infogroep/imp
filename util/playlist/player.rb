@@ -94,8 +94,4 @@ class Player
 	def reevaluate(uri, fingerprint = false, info = {})
 		@playlist.queue.each { |media| media.evaluate(fingerprint,info) if media.uri == uri }
 	end
-
-	def reserve_file
-		"blah"
-	end
 end
