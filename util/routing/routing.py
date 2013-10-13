@@ -4,11 +4,15 @@ import re
 class Router:
 	routed = False
 
+	def __init__(self,argv = sys.argv[2:]):
+		self.argv = argv
+
 	def match(self,rule,to,options = {}):
-		realargs = sys.argv[3:]
+		realargs = self.argv[1:]
 
-		incoming_method = sys.argv[1].lower()
-
+		incoming_method = self.argv[0].lower()
+		options["via"] = [method.lower() for method in options["via"]]
+		
 		if options["via"] != "all" and options["via"] != incoming_method and not incoming_method in options["via"]:
 			return
 		if len(realargs) != len(rule):

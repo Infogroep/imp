@@ -8,7 +8,7 @@ class Media
 		@duration = options[:duration] || "--:--"
 
 	end
-#downloaden
+
 	def uri
 		@uri
 	end
@@ -29,5 +29,17 @@ class Media
 		@duration
 	end
 
+	def evaluate(options)
+		fingerprint if options[:fingerprint]
+
+		@user = options[:user] if options[:user]
+		@title = options[:title] if options[:title]
+		@author = options[:author] if options[:author]
+		@duration = options[:duration] if options[:duration]
+	end
+
+	def fingerprint
+		fprint = `exiftool -t -n -s #{uri}`
+	end
 end
 

@@ -1,9 +1,15 @@
 module Routing
 	class Router
-		def match(rule = [],options = {})
-			realargs = ARGV[2..-1]
+		def initialize(argv)
+			raise "Not enough arguments" if argv.empty?
+			@argv = argv
+		end
 
-			incoming_method = ARGV[0].downcase.to_sym
+		def match(rule = [],options = {})
+			realargs = @argv[1..-1]
+
+			incoming_method = @argv[0].downcase.to_sym
+			options[:via] = options[:via].map{ |method| method.downcase.to_sym }
 			return if options[:via] != :all and options[:via] != incoming_method and not options[:via].include? incoming_method
 			return if realargs.size() != rule.size()
 
@@ -42,8 +48,9 @@ module Routing
 		end
 	end
 
-	def self.route
-		router = Router.new
+	def self.route(argv = nil)
+		argv ||= ARGV.drop(1)
+		router = Router.new argv
 		yield router
 		raise "Couldn't find a route" if not router.routed?
 	end

@@ -42,7 +42,7 @@ class Script(Resource):
 		p = ScriptProtocol(request)
 		reactor.spawnProcess(p, 
 		                    wrapper_script,
-		                    [wrapper_script,the_script,request.method,content_type] + the_args,
+		                    [wrapper_script,the_script,content_type,request.method] + the_args,
 		                    None)
 		return server.NOT_DONE_YET
 

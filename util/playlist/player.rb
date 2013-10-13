@@ -8,10 +8,9 @@ class Player
 		@interface = VLCInterface.new
 	end
 
-	def play(uri)
-		puts "Uwen server eeft et ook ontvangen. Ge wilt #{uri}"
-		#@interface.play @playlist.pop.uri
-		@interface.play uri
+	def play_next
+		raise PlayerException("Queue is empty") if @playlist.empty?
+		@interface.add @playlist.pop.uri
 	end
 
 	def stop
@@ -47,8 +46,7 @@ class Player
 	end
 
 	def skip
-		stop
-		play(@playlist.pop.uri)
+		play_next if not @playlist.empty?
 	end
 
 	def flush
@@ -77,26 +75,27 @@ class Player
 	end
 
 	def previous
-		@playlist.history.pop
-		prev = @playlist.history.pop
-		@playlist.add(prev)
-		@playlist.move_to_front(prev)
-		skip
+		@playlist.previous
+		play_next
 	end
 
 	def replay
-		prev = @playlist.history.pop
-		@playlist.add(prev)
-		@playlist.move_to_front(prev)
-		skip
+		@interface.seek 0
+		@interface.play
 	end
 	
-	def enqueue(uri)
-		#fingerprinting
-		item = Media.new uri
-		@playlist.add(item)
-		#if is_playing?
-		#	play
-		#end
+	def enqueue(uri, fingerprint = false, info = {})
+		media = Media.new uri
+		media.evaluate(fingerprint,info)
+		@playlist.add(media)
+		play_next if not is_playing?
+	end
+
+	def reevaluate(uri, fingerprint = false, info = {})
+		@playlist.queue.each { |media| media.evaluate(fingerprint,info) if media.uri == uri }
+	end
+
+	def reserve_file
+		"blah"
 	end
 end

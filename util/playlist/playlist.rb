@@ -1,13 +1,11 @@
-
-
 class Playlist
 	def initialize()
 		@queue = Array.new
 		@history = Array.new
 	end
 
-	def add(item)
-		@queue<<item
+	def add(media)
+		@queue<<media
 	end
 
 	def pop
@@ -23,25 +21,25 @@ class Playlist
 		@queue.shuffle
 	end
 
-	def magic_shuffle(item)
+	def magic_shuffle(media)
 		shuffle
-		move_to_front(item)
+		move_to_front(media)
 	end
 
-	def move_to_front(item)
-		remove(item)
-		@queue.insert(0, item)
+	def move_to_front(media)
+		remove(media)
+		@queue.insert(0, media)
 	end
 
-	def remove(item)
-		@queue.delete(item)
+	def remove(media)
+		@queue.delete(media)
 	end
 
 	def flush
 		@queue.clear
 	end
 
-	def show
+	def queue
 		@queue
 	end
 

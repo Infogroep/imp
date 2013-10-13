@@ -1,14 +1,23 @@
 class VLCInterface
 	def initialize()
 		@vlc = IO.popen("vlc -I rc","r+")
+		@vlc.puts 'set prompt ""'
+		@vlc.puts 'set prompt'
+		@vlc.gets
+		@vlc.gets
+		@vlc.gets
 	end
 
-	def close()
+	def close
 		@vlc.close
 	end
 
-	def play(uri)
+	def add(uri)
 		@vlc.puts "add #{uri}"
+	end
+
+	def play
+		@vlc.puts "play"
 	end
 
 	def stop
@@ -19,28 +28,23 @@ class VLCInterface
 		@vlc.puts "pause"
 	end
 
-	def is_playing?
-		@vlc.gets 
+	def is_playing? 
 		@vlc.puts "is_playing"
 		a = @vlc.gets
-		puts a
 		a.to_i == 1
 	end
 
 	def get_title
-		@vlc.gets 
 		@vlc.puts "get_title"
 		@vlc.gets.to_s
 	end
 
 	def get_time
-		@vlc.gets 
 		@vlc.puts "get_time"
 		@vlc.gets.to_i
 	end
 
 	def get_length
-		@vlc.gets 
 		@vlc.puts "get_length"
 		@vlc.gets.to_i
 	end

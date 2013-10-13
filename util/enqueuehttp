@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if [[ "$1" == "--here" ]]; then
+	file="$(util/player reserve-file)"
+	uri="$1"
+
+	{
+		wget -O "$file" "$uri"
+		util/player reevaluate "$file"
+	} &
+
+	shift 2
+	util/player enqueue "$file" "$@"
+else
+	"$0" "--here" "$@" & disown
+fi

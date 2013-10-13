@@ -9,8 +9,8 @@ mixer = alsamixer.Mixer()
 mixer.attach()
 mixer.load()
 
-action = sys.argv[1].lower()
-content_type_in = sys.argv[2]
+content_type_in = sys.argv[1]
+action = sys.argv[2].lower()
 
 element = alsamixer.Element(mixer, "Master")
 (min_vol,max_vol) = element.get_volume_range()

@@ -23,13 +23,13 @@ def play_playlist(id)
 	#song = songs.first
 	songs.each do |song|
 		url = @client.get_song_url(song)
-		puts url
-		spawn('util/player','--enqueue',url)
+		spawn('util/enqueuehttp',url)
 	end
-	spawn('util/player','--skip')
+	spawn('util/player','skip')
 end
 
 #play_playlist(84280827)
+
 
 Routing::route do |r|
 	r.play [:playlist_id] { |b| play_playlist b[:playlist_id].to_i }

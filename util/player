@@ -1,87 +1,66 @@
 #!/usr/bin/env ruby
 require 'drb/drb'
 require 'optparse'
+require_relative 'routing/routing'
 
 DRb.start_service
 
 player = DRbObject.new_with_uri("drbunix:/var/tmp/imp-player.socket")
 
+info = {}
+fingerprint = false
 OptionParser.new do |opts|
-	opts.on("--play PATH") do |path|
-		puts "Uw client heeft et ontvangen, ge wilt spelen #{path}"
-		player.play(path)
+	# Concerning enqueuing of files
+	opts.on("--author AUTHOR") do |author|
+		info[:author] = author
 	end
 
-	opts.on("--stop") do 
-		player.stop
+	opts.on("--title TITLE") do |title|
+		info[:title] = title
 	end
 
-	opts.on("--pause") do
-		player.pause
+	opts.on("--user USER") do |user|
+		info[:user] = user
 	end
 
-	opts.on("--is_playing") do
-		puts player.is_playing?
+	opts.on("--duration DURATION") do |duration|
+		info[:duration] = duration
 	end
 
-	opts.on("--get_title") do
-		player.get_title
+	opts.on("--downloadprogress PERCENTAGE") do |percentage|
+		info[:downloadprogress] = percentage
 	end
 
-	opts.on("--get_time") do
-		player.get_time
+	opts.on("-t","--tag",/[A-Za-z]+=.+/) do |tagspec|
+		[name,value] = /[A-Za-z]+=.+/.match(tagspec)
+		info[name.downcase.lower()] = value
 	end
 
-	opts.on("--get_length") do
-		player.get_length
-	end
-
-	opts.on("--seek SECONDS") do |seconds|
-		player.seek(seconds)
-	end
-	
-	opts.on("--volume X") do |x|
-		player.volume(x)
-	end
-
-	opts.on("--skip") do
-		player.skip
-	end
-
-	opts.on("--flush") do
-		player.flush
-	end
-
-	opts.on("--magic_shuffle X") do |x|
-		player.magic_shuffle(x)
-	end
-
-	opts.on("--shuffle") do 
-		player.shuffle
-	end
-
-	opts.on("--dequeue ITEM") do |item|
-		player.dequeue(item)
-	end
-
-	opts.on("--playlist") do
-		player.playlist
-	end
-	
-	opts.on("--history") do
-		player.history
-	end
-
-	opts.on("--previous") do
-		player.previous
-	end
-
-	opts.on("--replay") do
-		player.replay
-	end
-
-	opts.on("--enqueue ITEM") do |item|
-		player.enqueue(item)
+	opts.on("--[no-]fingerprint") do |f|
+		fingerprint = f
 	end
 end.parse!
 
+Routing::route ARGV do |r|
+	r.play [:uri] { |b| player.play b[:uri] }
+	r.stop { player.stop }
+	r.pause { player.pause }
+	r.is_playing { puts player.is_playing? }
+	r.get_title { puts player.get_title }
+	r.get_time { puts player.get_time }
+	r.get_length { puts player.get_length }
+	r.seek [:seconds] { |b| player.seek(b[:seconds]) }	
+	r.volume [:x] { |b| player.volume(b[:x]) }
+	r.skip { player.skip }
+	r.flush { player.flush }
+	r.magic_shuffle { |x| player.magic_shuffle(x) }
+	r.shuffle {	player.shuffle }
+	r.dequeue [:item] { |b|	player.dequeue(b[:item]) }
+	r.playlist { player.playlist }	
+	r.history { player.history }
+	r.previous { player.previous }
+	r.replay { player.replay }
+	r.enqueue [:item] { |b| player.enqueue(b[:item]) }
+	r.reserve_file { puts player.reserve_file }
+	r.reevaluate { player.reevaluate }
+end
