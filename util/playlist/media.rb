@@ -1,45 +1,31 @@
 class Media
 
-	def initialize(uri, options={})
+	def initialize(uri, info = {})
 		@uri = uri
-		@user = options[:user] || " "
-		@title = options[:title] || " "
-		@author = options[:author] || " "
-		@duration = options[:duration] || "--:--"
-
+		@info = info
+		@info[:user] ||= " "
+		@info[:title] ||= " "
+		@info[:author] ||= " "
+		@info[:duration] ||= "--:--"
 	end
 
-	def uri
-		@uri
-	end
+	def evaluate(do_fingerprint,info = {})
+		fingerprint if do_fingerprint
 
-	def user
-		@user
-	end
-
-	def title
-		@title
-	end
-
-	def author
-		@author
-	end
-
-	def duration
-		@duration
-	end
-
-	def evaluate(options)
-		fingerprint if options[:fingerprint]
-
-		@user = options[:user] if options[:user]
-		@title = options[:title] if options[:title]
-		@author = options[:author] if options[:author]
-		@duration = options[:duration] if options[:duration]
+		info.each { |k,v| @info[k] = v }
 	end
 
 	def fingerprint
 		fprint = `exiftool -t -n -s #{uri}`
+	end
+
+	def method_missing(meth,*args)
+		methname = meth.to_s
+		if methname.end_with? "="
+			@info[methname[0..-2].to_sym] = args[0]
+		else
+			@info[meth]
+		end
 	end
 end
 

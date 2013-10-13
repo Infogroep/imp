@@ -8,7 +8,7 @@ DRb.start_service
 player = DRbObject.new_with_uri("drbunix:/var/tmp/imp-player.socket")
 
 info = {}
-fingerprint = false
+options = {}
 OptionParser.new do |opts|
 	# Concerning enqueuing of files
 	opts.on("--author AUTHOR") do |author|
@@ -37,7 +37,7 @@ OptionParser.new do |opts|
 	end
 
 	opts.on("--[no-]fingerprint") do |f|
-		fingerprint = f
+		options[:fingerprint] = f
 	end
 end.parse!
 
@@ -49,17 +49,17 @@ Routing::route ARGV do |r|
 	r.get_title { puts player.get_title }
 	r.get_time { puts player.get_time }
 	r.get_length { puts player.get_length }
-	r.seek [:seconds] { |b| player.seek(b[:seconds]) }	
-	r.volume [:x] { |b| player.volume(b[:x]) }
+	r.seek [:seconds] { |b| player.seek b[:seconds] }	
+	r.volume [:x] { |b| player.volume b[:x] }
 	r.skip { player.skip }
 	r.flush { player.flush }
-	r.magic_shuffle { |x| player.magic_shuffle(x) }
+	r.magic_shuffle { |x| player.magic_shuffle b[:x] }
 	r.shuffle {	player.shuffle }
-	r.dequeue [:item] { |b|	player.dequeue(b[:item]) }
+	r.dequeue [:item] { |b|	player.dequeue b[:item] }
 	r.playlist { player.playlist }	
 	r.history { player.history }
 	r.previous { player.previous }
 	r.replay { player.replay }
-	r.enqueue [:item] { |b| player.enqueue(b[:item]) }
-	r.reevaluate { player.reevaluate }
+	r.enqueue [:item] { |b| player.enqueue b[:item], info, options }
+	r.reevaluate [:item] { |b| player.reevaluate b[:item], info, options }
 end

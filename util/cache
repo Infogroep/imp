@@ -1,6 +1,21 @@
 #!/usr/bin/env ruby
 
+require 'securerandom'
 require_relative 'routing/routing'
+
+def reserve_file
+	hash = SecureRandom.hex while hash && !File.exist? "tmp/cache/#{hash}"
+	`touch tmp/cache/#{hash}`
+	hash
+end
+
+def cleanup
+	`rm tmp/cache/*`
+end
+
+def remove_file(file)
+	`rm tmp/cache/#{file}`
+end
 
 Routing::route ARGV do |r|
 	r.reserve_file { reserve_file }

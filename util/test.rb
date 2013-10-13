@@ -1,4 +1,9 @@
-require_relative 'playlist'
+class A
+	def method_missing(meth, *args)
+		puts meth.to_s
+	end
+end
 
-playlist = Playlist.new
-playlist.play
+a = A.new
+a.hello
+a.hello = 5

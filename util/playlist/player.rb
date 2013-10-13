@@ -84,14 +84,14 @@ class Player
 		@interface.play
 	end
 	
-	def enqueue(uri, fingerprint = false, info = {})
+	def enqueue(uri, info = {}, options = {})
 		media = Media.new uri
-		media.evaluate(fingerprint,info)
+		media.evaluate(options[:fingerprint],info)
 		@playlist.add(media)
 		play_next if not is_playing?
 	end
 
-	def reevaluate(uri, fingerprint = false, info = {})
-		@playlist.queue.each { |media| media.evaluate(fingerprint,info) if media.uri == uri }
+	def reevaluate(uri, info = {}, options = {})
+		@playlist.queue.each { |media| media.evaluate(options[:fingerprint],info) if media.uri == uri }
 	end
 end
