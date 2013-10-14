@@ -7,13 +7,13 @@ class Router:
 	def __init__(self,argv = sys.argv[2:]):
 		self.argv = argv
 
-	def match(self,rule,to,options = {}):
+	def match(self,via,rule,to,options = {}):
 		realargs = self.argv[1:]
 
 		incoming_method = self.argv[0].lower()
-		options["via"] = [method.lower() for method in options["via"]]
+		via = [method.lower() for method in via]
 		
-		if options["via"] != "all" and options["via"] != incoming_method and not incoming_method in options["via"]:
+		if via != "all" and via != incoming_method and not incoming_method in via:
 			return
 		if len(realargs) != len(rule):
 			return
@@ -27,8 +27,7 @@ class Router:
 		return lambda rule,to,options = {}: self.special_match(attr,rule,to,options)
 
 	def special_match(self,attr,rule,to,options = {}):
-		options["via"] = attr
-		self.match(rule,to,options)
+		self.match([attr],rule,to,options)
 
 	def is_routed():
 		self.routed
