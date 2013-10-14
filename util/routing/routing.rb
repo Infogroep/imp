@@ -3,18 +3,15 @@
 # based on the command line parameters. This is particularly
 # useful for scripts that will be called by the server,
 # as it allows simple processing of the URI.
-#
 module Routing
 	##
 	# The Router class is the main brain of the routing module.
-	#
 	class Router
 		##
 		# Creates a new router that will route based on the +argv+ provided.
 		# The default +argv+ is ARGV without the first parameter,
 		# which in server scripts corresponds to the HTTP method followed
 		# by the remaining URL path.
-		#
 		def initialize(argv = nil)
 			argv ||= ARGV.drop(1)
 
@@ -57,7 +54,6 @@ module Routing
 		# Generally you will want to use the helper functions provided by the
 		# method_missing implementation as it allows for a cleaner notation for standard
 		# queries.
-		#
 		def match(rule = [],options = {})
 			return if @argv.size != rule.size
 
@@ -93,14 +89,12 @@ module Routing
 		#   r.add [:id,"to",:username],	id: /[0-9]+/, username: /[a-z]+/ do
 		#     add_id_to_username b[:id].to_i, b[:username]
 		#   end
-		#
 		def method_missing(meth,rule = [],options = {})
 			match([meth.to_s] + rule,options) { |b| yield b }
 		end
 
 		##
 		# Returns true if the Router has found a route.
-		#
 		def routed?
 			@routed
 		end
@@ -156,7 +150,6 @@ module Routing
 	#     r.put { put_collection }
 	#     r.put [:id] { |b| put_item b[:id] }
 	#   end
-	#
 	def self.route(argv = nil)
 		router = Router.new argv
 		yield router

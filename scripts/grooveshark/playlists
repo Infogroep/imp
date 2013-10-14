@@ -15,23 +15,30 @@ rescue Grooveshark::InvalidAuthentication
 	puts "Ooops! Wrong username or password"
 end
 
-def play_playlist(id)
-	playlist = Grooveshark::Playlist.new(@client,{'playlist_id' => id })#user.get_playlist(84280827)
-	playlist.load_songs
-	songs = playlist.songs
-	
-	#song = songs.first
-	songs.each do |song|
-		url = @client.get_song_url(song)
-		spawn('util/enqueuehttp',url)
+##
+# Part of the /grooveshark/playlists script.
+# Provides an interface to queue grooveshark playlists
+module GroovesharkPlaylists
+	##
+	# Add an entire playlist to the the queue
+	def play_playlist(id)
+		playlist = Grooveshark::Playlist.new(@client,{'playlist_id' => id })#user.get_playlist(84280827)
+		playlist.load_songs
+		songs = playlist.songs
+		
+		#song = songs.first
+		songs.each do |song|
+			url = @client.get_song_url(song)
+			spawn('util/enqueuehttp',url)
+		end
+		spawn('util/player','skip')
 	end
-	spawn('util/player','skip')
 end
 
 #play_playlist(84280827)
 
 
 Routing::route do |r|
-	r.play [:playlist_id] { |b| play_playlist b[:playlist_id].to_i }
+	r.play [:playlist_id] { |b| GroovesharkPlaylists::play_playlist b[:playlist_id].to_i }
 end
 

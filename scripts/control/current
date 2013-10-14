@@ -4,35 +4,50 @@ puts "application/json"
 require 'optparse'
 require_relative '../../util/routing/routing'
 
-def pause
-	puts "Pause!"
-	spawn('util/player','--pause')
-end
+##
+# Part of the /control/current script.
+# Provides an interface to manipulate the currently playing media.
+module Current
+	##
+	# Pause the current media
+	def self.pause
+		puts "Pause!"
+		spawn('util/player','--pause')
+	end
 
-def stop
-	puts "Stop!"
-	spawn('util/player','--stop')
-end
+	##
+	# Stop the current media
+	def self.stop
+		puts "Stop!"
+		spawn('util/player','--stop')
+	end
 
-def skip
-	puts "Skip!"
-	spawn('util/player','--skip')
-end
+	##
+	# Skip the current media
+	def self.skip
+		puts "Skip!"
+		spawn('util/player','--skip')
+	end
 
-def previous
-	puts "Previous!"
-	spawn('util/player','--previous')
-end
+	##
+	# Play the previous media
+	def self.previous
+		puts "Previous!"
+		spawn('util/player','--previous')
+	end
 
-def replay
-	puts "Replay!"
-	spawn('util/player', '--replay')
+	##
+	# Restart the current song from the beginning
+	def self.replay
+		puts "Replay!"
+		spawn('util/player', '--replay')
+	end
 end
 
 Routing::route do |r|
-	r.pause { pause }
-	r.stop { stop }
-	r.skip { skip }
-	r.previous { previous }
-	r.replay { replay }
+	r.pause { Current::pause }
+	r.stop { Current::stop }
+	r.skip { Current::skip }
+	r.previous { Current::previous }
+	r.replay { Current::replay }
 end

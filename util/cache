@@ -3,22 +3,32 @@
 require 'securerandom'
 require_relative 'routing/routing'
 
-def reserve_file
-	hash = SecureRandom.hex while hash && !File.exist? "tmp/cache/#{hash}"
-	`touch tmp/cache/#{hash}`
-	hash
-end
+##
+# Provides methods to manipulate the on-disk media cache
+module Cache
+	##
+	# Create a new file with a unique name and returns its name
+	def self.reserve_file
+		uuid = SecureRandom.uuid
+		`touch tmp/cache/#{uuid}`
+		uuid
+	end
 
-def cleanup
-	`rm tmp/cache/*`
-end
+	##
+	# Clears the entire cache
+	def self.cleanup
+		`rm tmp/cache/*`
+	end
 
-def remove_file(file)
-	`rm tmp/cache/#{file}`
+	##
+	# Remove a specific file from the cache
+	def self.remove_file(file)
+		`rm tmp/cache/#{file}`
+	end
 end
 
 Routing::route ARGV do |r|
-	r.reserve_file { reserve_file }
-	r.cleanup { cleanup }
-	r.remove_file [:file], file: /[0-9a-f]+/ { remove_file b[:file] }
+	r.reserve_file { Cache::reserve_file }
+	r.cleanup { Cache::cleanup }
+	r.remove_file [:file], file: /[0-9a-f]+/ { Cache::remove_file b[:file] }
 end
