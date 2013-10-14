@@ -44,7 +44,7 @@ module Routing
 		#   r.match ["get","playlist",:playlist_id] { |b| show_pl b[:playlist_id] }
 		#   
 		#   # set <numeric id>
-		#   r.match ["set",:id], id: /[0-9]+/ { |b| set_id b[:id].to_i }
+		#   r.match ["set",:id], { id: /[0-9]+/ } { |b| set_id b[:id].to_i }
 		#
 		#   # help/info
 		#   r.match [["help","info"]] { show_info }
@@ -58,12 +58,10 @@ module Routing
 		# method_missing implementation as it allows for a cleaner notation for standard
 		# queries.
 		#
-		def match(via,rule = [],options = {})
-			realargs = @argv[1..-1]
+		def match(rule = [],options = {})
+			return if @argv.size != rule.size
 
-			return if realargs.size() != rule.size()
-
-			bindings = match_rule(rule,realargs,options)
+			bindings = match_rule(rule,@argv,options)
 			if bindings
 				@routed = true
 				yield bindings
@@ -86,7 +84,7 @@ module Routing
 		#   r.get ["playlist",:playlist_id] { |b| show_pl b[:playlist_id] }
 		#   
 		#   # set <numeric id>
-		#   r.set [:id], id: /[0-9]+/ { |b| set_id b[:id].to_i }
+		#   r.set [:id], { id: /[0-9]+/ } { |b| set_id b[:id].to_i }
 		#
 		#   # help
 		#   r.help { show_help }
@@ -109,7 +107,7 @@ module Routing
 
 		private
 
-		def match_rule_element(rule_el,realarg,bindings)
+		def match_rule_element(rule_el,realarg,bindings,options)
 			case rule_el
 
 			# If the element is a Symbol, add to bindings and match
@@ -140,10 +138,10 @@ module Routing
 			end
 		end
 
-		def match_rule(rule,realargs,options = {})
+		def match_rule(rule,realargs,options)
 			bindings = {}
 			rule.zip(realargs).each do |rule_el,realarg|
-				if not match_rule_element return false
+				return false if not match_rule_element rule_el, realarg, bindings, options
 			end
 			return bindings
 		end
