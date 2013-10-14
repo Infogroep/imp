@@ -22,8 +22,8 @@ class Router:
 	def special_match(self,attr,rule,to,options = {}):
 		self.match([attr] + rule,to,options)
 
-	def is_routed():
-		self.routed
+	def is_routed(self):
+		return self.routed
 
 	def match_rule_element(self,rule_el,realarg,bindings,options):
 		if rule_el[0] == ":":
@@ -33,7 +33,7 @@ class Router:
 			return rule_el.lower() == realarg.lower()
 		elif type(rule_el) == list:
 			for el in rule_el:
-				if self.match_rule_element(el,realarg,bindings,options)
+				if self.match_rule_element(el,realarg,bindings,options):
 					return True
 			return False
 		else:
