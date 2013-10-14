@@ -46,24 +46,22 @@ class Player
 		@interface.is_playing?
 	end
 
-	def get_title
-		@interface.get_title
-	end
-
+	##
+	# Get the current position in the media in seconds
 	def get_time
 		@interface.get_time
 	end
 
+	##
+	# Get the length of the current media as known by the internal media player
 	def get_length
 		@interface.get_length
 	end
 
+	##
+	# Seek to a certain position in the current media
 	def seek(seconds) 
 		@interface.seek seconds
-	end
-
-	def volume(x)
-		@interface.volume x
 	end
 
 	##
