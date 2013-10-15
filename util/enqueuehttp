@@ -2,7 +2,7 @@
 
 if [[ "$1" == "--here" ]]; then
 	file="$(util/store reserve-file)"
-	uri="$1"
+	uri="$2"
 
 	{
 		wget -O "$file" "$uri"
