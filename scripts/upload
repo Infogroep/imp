@@ -1,13 +1,19 @@
 #!/bin/bash
 
+buffer_size=100000
+
 echo 'application/json'
 file="tmp/cache/$(util/cache reserve_file)"
+id=""
 
 {
-	sleep 0.5
+	while [[ $(stat -c %s "$file") < $buffer_size ]]; do
+		sleep 0.5
+	done
 	id="$(util/player enqueue --fingerprint "$file")"
-}
+} &
 
 cat > "$file"
-sleep 0.8
-util/player reevaluate --fingerprint "$id"
+if [[ ! -z "$id" ]]; then
+	util/player reevaluate --fingerprint "$id"
+fi
