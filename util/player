@@ -31,9 +31,9 @@ OptionParser.new do |opts|
 		info[:downloadprogress] = percentage
 	end
 
-	opts.on("-t","--tag TAG",/[A-Za-z]+=.+/) do |tagspec|
+	opts.on("-t","--tag TAG",/[A-Za-z]+=.+/m) do |tagspec|
 		m = /([A-Za-z]+)=(.+)/.match(tagspec)
-		info[m[1]] = m[2]
+		info[m[1].downcase] = m[2]
 	end
 
 	opts.on("--[no-]fingerprint") do |f|

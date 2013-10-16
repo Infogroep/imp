@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'ruby-duration'
+
+require_relative '../../util/routing/routing'
+require_relative '../../util/youtube/youtube_api'
+
+module Youtube
+	module Video
+		def self.play(id)
+			client = YoutubeAPI.new
+			youtube = client.discovered_api("youtube", "v3")
+			response = client.execute!(
+				api_method: youtube.videos.list,
+				parameters: {
+					part: "snippet,contentDetails",
+					id: id 
+				})
+
+			raise "Unknown video" if response.data.items.empty?
+
+			spawn(
+				"util/player",
+				"enqueue",
+				"-t","title=#{response.data.items[0].snippet.title}",
+				"-t","artist=#{response.data.items[0].snippet.channelTitle}",
+				"-t","description=#{response.data.items[0].snippet.description}",
+				"-t","duration=#{Duration.new(response.data.items[0].contentDetails.duration).format("%m:%s")}",
+				"http://www.youtube.com/watch?v=#{id}")
+		end
+	end
+end
+
+Routing::route do |r|
+	r.play [:id] { |b| Youtube::Video::play b[:id] }
+end
