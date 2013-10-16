@@ -6,7 +6,7 @@ require 'json'
 require 'optparse'
 require_relative '../util/routing/routing'
 
-module Queue
+module PlaylistQueue
 	def self.queue
 		spawn('util/player','playlist')
 	end
@@ -88,16 +88,16 @@ module Queue
 end
 
 Routing::route do |r|
-	r.get { Queue::queue }
-	r.get [:id] { |b| Queue::get_item b[:id] } 
-	r.post [:item] { |b| Queue::enqueue b[:id]}
-	r.shuffle { Queue::shuffle }
-	r.magic_shuffle { Queue::magic_shuffle }
-	r.magic_shuffle [:id] { |b| Queue::magic_shuffle b[:id] }
-	r.delete { Queue::delete }
-	r.delete [:id] { |b| Queue::delete b[:id] }
-	r.delete_regex { Queue::delete_regex }
-	r.to_front { Queue::to_front }
-	r.to_front [:id] { |b| Queue::to_front b[:id] }
-	r.enqueue_to_front [:id] { |b| Queue::enqueue_to_front b[:id] }
+	r.get { PlaylistQueue::queue }
+	r.get [:id] { |b| PlaylistQueue::get_item b[:id] } 
+	r.post [:item] { |b| PlaylistQueue::enqueue b[:id]}
+	r.shuffle { PlaylistQueue::shuffle }
+	r.magic_shuffle { PlaylistQueue::magic_shuffle }
+	r.magic_shuffle [:id] { |b| PlaylistQueue::magic_shuffle b[:id] }
+	r.delete { PlaylistQueue::delete }
+	r.delete [:id] { |b| PlaylistQueue::delete b[:id] }
+	r.delete_regex { PlaylistQueue::delete_regex }
+	r.to_front { PlaylistQueue::to_front }
+	r.to_front [:id] { |b| PlaylistQueue::to_front b[:id] }
+	r.enqueue_to_front [:id] { |b| PlaylistQueue::enqueue_to_front b[:id] }
 end
