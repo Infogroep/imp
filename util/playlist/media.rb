@@ -9,6 +9,10 @@ class Media
 	attr_reader :id
 
 	##
+	# The URI to the media file/stream
+	attr_reader :uri
+
+	##
 	# Allows access to the media info tags
 	attr_accessor :info
 
@@ -30,10 +34,10 @@ class Media
 
 		load_info(do_fingerprint,info)
 
-		@info[:user] ||= ""
-		@info[:title] ||= ""
-		@info[:author] ||= ""
-		@info[:duration] ||= "--:--"
+		@info["User"] ||= ""
+		@info["Title"] ||= ""
+		@info["Artist"] ||= ""
+		@info["Duration"] ||= "--:--"
 	end
 
 	##
@@ -60,12 +64,20 @@ class Media
 		end
 	end
 
+	def to_h
+		{
+			id: @id,
+			uri: @uri,
+			info: @info
+		}
+	end
+
 	private
 
 	def fingerprint
-		fprint = `exiftool -t -n -s #{uri}`
-		fprint.lines.each do |line|
-			[k, v] = line.split("\t",2)
+		fprint = `exiftool -t -n -s #{@uri}`
+		fprint.split("\n").each do |line|
+			k, v = line.split("\t",2)
 			@info[k] = v
 		end
 	end

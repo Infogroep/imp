@@ -31,6 +31,7 @@ class Playlist
 		
 		@history<<@queue.first
 		@queue.shift
+		@queue.first
 	end
 	
 	##

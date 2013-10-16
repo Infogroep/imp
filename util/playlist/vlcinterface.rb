@@ -3,15 +3,32 @@
 # This class launches the VideoLAN VLC Media Player as a subprocess
 # in remote mode and communicates with it to play media.
 class VLCInterface
+
 	##
 	# Spawns a VLC process and initializes the connection
-	def initialize()
+	def initialize(on_media_end)
 		@vlc = IO.popen("vlc -I rc","r+")
 		@vlc.puts 'set prompt ""'
 		@vlc.puts 'set prompt'
 		@vlc.gets
 		@vlc.gets
 		@vlc.gets
+
+		@mutex = Mutex.new
+
+		@end_checker = Thread.new do
+			while true
+				@mutex.lock
+				if @should_be_playing and not is_playing?
+					@should_be_playing = false
+					@mutex.unlock
+					on_media_end.call
+				else
+					@mutex.unlock
+				end
+				sleep 0.200
+			end
+		end
 	end
 
 	##
@@ -23,19 +40,31 @@ class VLCInterface
 	##
 	# Play a media file/stream
 	def add(uri)
-		@vlc.puts "add #{uri}"
+		@mutex.synchronize do
+			puts "Playing #{uri}"
+			@vlc.puts "add #{uri}"
+			puts "Waiting for play"
+			wait_for_play true
+			puts "OK"
+		end
 	end
 
 	##
 	# Start playback
 	def play
-		@vlc.puts "play"
+		@mutex.synchronize do
+			@vlc.puts "play"
+			wait_for_play true
+		end
 	end
 
 	##
 	# Stop playback
 	def stop
-		@vlc.puts "stop"
+		@mutex.synchronize do
+			@vlc.puts "stop"
+			wait_for_play false
+		end
 	end
 
 	##
@@ -46,7 +75,7 @@ class VLCInterface
 
 	##
 	# Check if playback is active
-	def is_playing? 
+	def is_playing?
 		@vlc.puts "is_playing"
 		a = @vlc.gets
 		a.to_i == 1
@@ -83,5 +112,14 @@ class VLCInterface
 	# Set the VLC volume
 	def volume(x)
 		@vlc.puts "volume #{x}"
+	end
+
+	private
+	
+	def wait_for_play(status)
+		until status == is_playing?
+			sleep 0.020 # do nothing
+		end
+		@should_be_playing = status
 	end
 end

@@ -1,6 +1,7 @@
 require_relative 'playlist'
 require_relative 'vlcinterface'
 require_relative 'media'
+require 'json'
 
 ##
 # This exception is thrown by the Player on illegal operations.
@@ -15,66 +16,91 @@ end
 class Player
 	##
 	# Creates a new media player
-	def initialize()
+	def initialize
+		@mutex = Mutex.new
+
 		@playlist = Playlist.new
-		@interface = VLCInterface.new
+		@interface = VLCInterface.new lambda &method(:on_media_end)
 	end
 
 	##
 	# Plays the current media in the playlist queue.
 	# Raises a PlayerError if the queue is empty.
 	def play_current
-		raise PlayerError("Queue is empty") if @playlist.empty?
-		@interface.add @playlist.current.uri
+		synchronized do
+			puts "Playing"
+			raise PlayerError("Queue is empty") if @playlist.queue.empty?
+			@interface.add @playlist.current.uri
+		end
 	end
 
 	##
 	# Stops playback
 	def stop
-		@interface.stop
+		synchronized do
+			@interface.stop
+		end
 	end
 
 	##
 	# Pauses playback
 	def pause
-		@interface.pause
+		synchronized do
+			@interface.pause
+		end
 	end
 
 	##
 	# Returns a Boolean indicating if the media player is playing
 	def is_playing?
-		@interface.is_playing?
+		synchronized do
+			@interface.is_playing?
+		end
 	end
 
 	##
 	# Get the current position in the media in seconds
 	def get_time
-		@interface.get_time
+		synchronized do
+			@interface.get_time
+		end
 	end
 
 	##
 	# Get the length of the current media as known by the internal media player
 	def get_length
-		@interface.get_length
+		synchronized do
+			@interface.get_length
+		end
 	end
 
 	##
 	# Seek to a certain position in the current media
 	def seek(seconds) 
-		@interface.seek seconds
+		synchronized do
+			@interface.seek seconds
+		end
 	end
 
 	##
-	# Skips the current song. Stops playback if the playlist's queue is empty.
-	def skip
-		play_current if @playlist.next
+	# Plays the next song. Stops playback if the playlist's queue is empty.
+	def next
+		synchronized do
+			if @playlist.next
+				play_current
+			else
+				stop
+			end
+		end
 	end
 
 	##
 	# Stops playback and clears the playlist's queue
 	def flush
-		stop
-		@playlist.flush
+		synchronized do
+			stop
+			@playlist.flush
+		end
 	end
 
 	##
@@ -82,13 +108,17 @@ class Player
 	#
 	# +item+ is the UUID representing the item
 	def magic_shuffle(item)
-		@playlist.magic_shuffle(item)
+		synchronized do
+			@playlist.magic_shuffle(item)
+		end
 	end
 
 	##
 	# Shuffles the playlist's queue
 	def shuffle
-		@playlist.shuffle
+		synchronized do
+			@playlist.shuffle
+		end
 	end
 
 	##
@@ -96,31 +126,45 @@ class Player
 	#
 	# +item+ is the UUID representing the item
 	def dequeue(item)
-		@playlist.remove(item)
+		synchronized do
+			@playlist.remove(item)
+		end
 	end
 
 	##
 	# Returns the playlist's queue
 	def playlist
-		@playlist.queue
+		synchronized do
+			JSON.generate(@playlist.queue.map { |m| m.to_h })
+		end
 	end
 
 	##
 	# Returns the playlist's history
 	def history
-		@playlist.history
+		synchronized do
+			JSON.generate(@playlist.history.map { |m| m.to_h })
+		end
 	end
 
 	##
-	# Plays the previous song
+	# Plays the previous song. If there is no previous song, restarts current song.
 	def previous
-		play_current if @playlist.previous
+		synchronized do
+			if @playlist.previous
+				play_current 
+			else
+				replay
+			end
+		end
 	end
 
 	##
 	# Plays the current song from the start
 	def replay
-		play_current
+		synchronized do
+			play_current
+		end
 	end
 
 	##
@@ -135,10 +179,13 @@ class Player
 	#
 	# Returns the media ID.
 	def enqueue(uri, info = {}, options = {})
-		media = Media.new(uri, options[:fingerprint], info)
-		@playlist.add(media)
-		play_current if not is_playing?
-		media.id
+		synchronized do
+			media = Media.new(uri, options[:fingerprint], info)
+			@playlist.add(media)
+			puts "Geadd"
+			play_current if not is_playing?
+			media.id
+		end
 	end
 
 	##
@@ -153,9 +200,32 @@ class Player
 	#
 	# Raises a PlayerError if the media can't be found
 	def reevaluate(id, info = {}, options = {})
-		media = @playlist.find_media_by_id(id)
-		raise PlayerError("Can't find requested media") if not media
+		synchronized do
+			media = @playlist.find_media_by_id(id)
+			raise PlayerError("Can't find requested media") if not media
 
-		media.load_info(options[:fingerprint],info)
+			media.load_info(options[:fingerprint],info)
+		end
+	end
+
+	private
+
+	##
+	# This event is called when the media player interface stops playing
+	def on_media_end
+		@mutex.synchronize do
+			puts "Media ended"
+			self.next
+		end
+	end
+
+	def synchronized
+		if @mutex.owned?
+			yield
+		else
+			@mutex.synchronize do
+				yield
+			end
+		end
 	end
 end
