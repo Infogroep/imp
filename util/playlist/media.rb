@@ -34,10 +34,10 @@ class Media
 
 		load_info(do_fingerprint,info)
 
-		@info["User"] ||= ""
-		@info["Title"] ||= ""
-		@info["Artist"] ||= ""
-		@info["Duration"] ||= "--:--"
+		@info["user"] ||= ""
+		@info["title"] ||= ""
+		@info["artist"] ||= ""
+		@info["duration"] ||= "--:--"
 	end
 
 	##
@@ -46,7 +46,7 @@ class Media
 	def load_info(do_fingerprint, info = {})
 		fingerprint if do_fingerprint
 
-		info.each { |k,v| @info[k] = v }
+		info.each { |k,v| @info[k.downcase] = v }
 	end
 
 	##
@@ -58,9 +58,9 @@ class Media
 	def method_missing(meth, *args)
 		methname = meth.to_s
 		if methname.end_with? "="
-			@info[methname[0..-2].to_sym] = args[0]
+			@info[methname[0..-2].downcase] = args[0]
 		else
-			@info[meth]
+			@info[methname.downcase]
 		end
 	end
 
@@ -78,7 +78,7 @@ class Media
 		fprint = `exiftool -t -n -s #{@uri}`
 		fprint.split("\n").each do |line|
 			k, v = line.split("\t",2)
-			@info[k] = v
+			@info[k.downcase] = v
 		end
 	end
 end
