@@ -11,7 +11,7 @@ require_relative '../../util/youtube/youtube_api'
 
 module Youtube
 	module Video
-		def self.play(id)
+		def self.enqueue(id)
 			client = YoutubeAPI.new
 			youtube = client.discovered_api("youtube", "v3")
 			response = client.execute!(
@@ -49,6 +49,6 @@ module Youtube
 end
 
 Routing::route do |r|
-	r.play [:id] { |b| Youtube::Video::play b[:id] }
+	r.enqueue [:id] { |b| Youtube::Video::enqueue b[:id] }
 	r.get [:id,"related"] { |b| Youtube::Video::get_related b[:id] }
 end

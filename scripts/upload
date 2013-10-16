@@ -1,0 +1,13 @@
+#!/bin/bash
+
+echo 'application/json'
+file="tmp/cache/$(util/cache reserve_file)"
+
+{
+	sleep 0.1
+	id="$(util/player enqueue --fingerprint "$file")"
+}
+
+cat > "$file"
+sleep 0.2
+util/player reevaluate --fingerprint "$id"

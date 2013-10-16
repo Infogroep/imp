@@ -1,8 +1,10 @@
 #!/usr/bin/env ruby
 
+puts 'application/json'
+
 require 'json'
 require 'optparse'
-require_relative '../../util/routing/routing'
+require_relative '../util/routing/routing'
 
 module Queue
 	def self.queue
@@ -37,7 +39,7 @@ module Queue
 	end
 
 	def self.magic_shuffle(id)
-		spawn('util/player', 'magic_shuffle' id)
+		spawn('util/player', 'magic_shuffle', id)
 	end
 
 	def self.delete
@@ -80,8 +82,8 @@ module Queue
 	end
 
 	def self.enqueue_to_front(id)
-		class.enqueue(id)
-		class.to_front(id)
+		enqueue(id)
+		to_front(id)
 	end
 end
 
@@ -98,5 +100,4 @@ Routing::route do |r|
 	r.to_front { Queue::to_front }
 	r.to_front [:id] { |b| Queue::to_front b[:id] }
 	r.enqueue_to_front [:id] { |b| Queue::enqueue_to_front b[:id] }
-
 end

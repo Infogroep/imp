@@ -8,6 +8,10 @@ module Routing
 	# The Router class is the main brain of the routing module.
 	class Router
 		##
+		# The arguments being routed
+		attr_reader :argv
+
+		##
 		# Creates a new router that will route based on the +argv+ provided.
 		# The default +argv+ is ARGV without the first parameter,
 		# which in server scripts corresponds to the HTTP method followed
@@ -153,6 +157,6 @@ module Routing
 	def self.route(argv = nil)
 		router = Router.new argv
 		yield router
-		raise "Couldn't find a route" if not router.routed?
+		raise "Couldn't find a route: no route for #{router.argv}" if not router.routed?
 	end
 end

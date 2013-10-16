@@ -28,7 +28,9 @@ module Cache
 end
 
 Routing::route ARGV do |r|
-	r.reserve_file { Cache::reserve_file }
+	r.reserve_file { puts Cache::reserve_file }
 	r.cleanup { Cache::cleanup }
-	r.remove_file [:file], file: /[0-9a-f]+/ { Cache::remove_file b[:file] }
+	r.remove_file [:file], file: /[0-9a-f-]+/ do
+		Cache::remove_file b[:file]
+	end
 end

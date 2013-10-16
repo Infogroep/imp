@@ -42,7 +42,7 @@ OptionParser.new do |opts|
 end.parse!
 
 Routing::route ARGV do |r|
-	r.play [:uri] { |b| player.play b[:uri] }
+	r.play { player.play_current }
 	r.stop { player.stop }
 	r.pause { player.pause }
 	r.is_playing { puts player.is_playing? }
@@ -51,7 +51,7 @@ Routing::route ARGV do |r|
 	r.get_length { puts player.get_length }
 	r.seek [:seconds] { |b| player.seek b[:seconds] }	
 	r.volume [:x] { |b| player.volume b[:x] }
-	r.skip { player.next }
+	r.next { player.next }
 	r.flush { player.flush }
 	r.magic_shuffle { |x| player.magic_shuffle b[:x] }
 	r.shuffle {	player.shuffle }

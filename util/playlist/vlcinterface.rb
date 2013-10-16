@@ -7,7 +7,7 @@ class VLCInterface
 	##
 	# Spawns a VLC process and initializes the connection
 	def initialize(on_media_end)
-		@vlc = IO.popen("vlc -I rc","r+")
+		@vlc = IO.popen("vlc --fullscreen -I rc","r+")
 		@vlc.puts 'set prompt ""'
 		@vlc.puts 'set prompt'
 		@vlc.gets

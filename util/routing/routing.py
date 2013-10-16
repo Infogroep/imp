@@ -71,7 +71,7 @@ class Router:
 			return
 
 		bindings = self._match_rule(rule,self.argv,options)
-		if bindings:
+		if bindings != False:
 			self.routed = True
 			to(bindings)
 
