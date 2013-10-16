@@ -4,10 +4,10 @@ echo 'application/json'
 file="tmp/cache/$(util/cache reserve_file)"
 
 {
-	sleep 0.1
+	sleep 0.5
 	id="$(util/player enqueue --fingerprint "$file")"
 }
 
 cat > "$file"
-sleep 0.2
+sleep 0.8
 util/player reevaluate --fingerprint "$id"
