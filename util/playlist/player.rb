@@ -106,10 +106,10 @@ class Player
 	##
 	# Shuffles and shifts the requested item to the front.
 	#
-	# +item+ is the UUID representing the item
-	def magic_shuffle(item)
+	# +id+ is the UUID representing the item
+	def magic_shuffle(id)
 		synchronized do
-			@playlist.magic_shuffle(item)
+			@playlist.magic_shuffle(@playlist.find_media_by_id(id))
 		end
 	end
 
@@ -212,7 +212,13 @@ class Player
 		synchronized do
 			media = @playlist.find_media_by_id(id)
 			raise PlayerError("Can't find requested media") if not media
-			JSON.generate(media)
+			JSON.generate(media.to_h)
+		end
+	end
+
+	def to_front(id)
+		synchronized do
+			@playlist.move_to_front(@playlist.find_media_by_id(id))
 		end
 	end
 

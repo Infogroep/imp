@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+require 'json'
 require 'optparse'
 require_relative '../../util/routing/routing'
 
@@ -8,6 +9,7 @@ module Queue
 		spawn('util/player','playlist')
 	end
 
+	#TODO
 	def self.enqueue
 		#Add an item to the queue
 	end
@@ -21,7 +23,17 @@ module Queue
 	end
 
 	def self.magic_shuffle
-		#Moves items from regex to front
+		re = RegExp.new(JSON.parse(gets))
+		queue = JSON.parse(`util/player playlist`)
+		`util/player shuffle`
+		queue.each do |media|
+			media[:info].each do |k,v|
+				if re.match(v)
+					`util/player to_front #{media[:id]}`
+					break
+				end
+			end
+		end
 	end
 
 	def self.magic_shuffle(id)
@@ -29,7 +41,8 @@ module Queue
 	end
 
 	def self.delete
-		#read from std-in and delete
+		ids = JSON.parse(gets)
+		ids.each { |id| wait spawn('util/player','dequeue',id) }
 	end
 
 	def self.delete(id)
@@ -37,27 +50,39 @@ module Queue
 	end
 
 	def self.delete_regex
-		#remove items from regex from queue
+		re = RegExp.new(JSON.parse(gets))
+		queue = JSON.parse(`util/player playlist`)
+		queue.each do |media|
+			media[:info].each do |k,v|
+				if re.match(v)
+					`util/player dequeue #{media[:id]}`
+					break
+				end
+			end
+		end
 	end
 
 	def self.to_front
-
+		re = RegExp.new(JSON.parse(gets))
+		queue = JSON.parse(`util/player playlist`)
+		queue.each do |media|
+			media[:info].each do |k,v|
+				if re.match(v)
+					`util/player to_front #{media[:id]}`
+					break
+				end
+			end
+		end
 	end
 
 	def self.to_front(id)
-		#Move an item to the front of the queue
-
+		spawn('util/player', 'to_front', id)
 	end
 
 	def self.enqueue_to_front(id)
-		#Enqeue an item to the front of the queue
+		class.enqueue(id)
+		class.to_front(id)
 	end
-
-
-
-
-
-
 end
 
 Routing::route do |r|

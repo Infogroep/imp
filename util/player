@@ -62,5 +62,7 @@ Routing::route ARGV do |r|
 	r.replay { player.replay }
 	r.enqueue [:item] { |b| puts player.enqueue b[:item], info, options }
 	r.reevaluate [:item] { |b| player.reevaluate b[:item], info, options }
-	r.find_media [:id] { |b| player.find_media b[:id]}
+	
+	r.find_media [:id] { |b| puts player.find_media b[:id] }
+	r.to_front [:id] { |b| player.to_front b[:id] }
 end

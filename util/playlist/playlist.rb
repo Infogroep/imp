@@ -95,6 +95,6 @@ class Playlist
 	##
 	# Find a Media in the queue or history using its UUID
 	def find_media_by_id(id)
-		@queue.find(id) or @history.find(id)
+		@queue.find { |m| m.id == id } or @history.find { |m| m.id == id }
 	end
 end
