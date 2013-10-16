@@ -3,6 +3,7 @@
 puts "application/json"
 
 require 'rubygems'
+require 'json'
 require 'ruby-duration'
 
 require_relative '../../util/routing/routing'
@@ -31,9 +32,23 @@ module Youtube
 				"-t","duration=#{Duration.new(response.data.items[0].contentDetails.duration).format("%m:%s")}",
 				"http://www.youtube.com/watch?v=#{id}")
 		end
+
+		def self.get_related(id)
+			client = YoutubeAPI.new
+			youtube = client.discovered_api("youtube", "v3")
+			response = client.execute!(
+				api_method: youtube.search.list,
+				parameters: {
+					part: "id,snippet",
+					relatedToVideoId: id
+				})
+
+			puts JSON.generate(response.data.items)
+		end
 	end
 end
 
 Routing::route do |r|
 	r.play [:id] { |b| Youtube::Video::play b[:id] }
+	r.get [:id,"related"] { |b| Youtube::Video::get_related b[:id] }
 end
