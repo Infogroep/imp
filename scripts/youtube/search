@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+
+puts "application/json"
+
+require 'rubygems'
+require 'json'
+require 'ruby-duration'
+
+require_relative '../../util/routing/routing'
+require_relative '../../util/youtube/youtube_api'
+
+module Youtube
+	module Search
+		def self.do_search
+			client = YoutubeAPI.new
+			youtube = client.discovered_api("youtube", "v3")
+			response = client.execute!(
+				api_method: youtube.search.list,
+				parameters: {
+					part: "id,snippet",
+					q: JSON.parse(STDIN.gets)[:q]
+				})
+
+			puts JSON.generate(response.data.items)
+		end
+	end
+end
+
+Routing::route do |r|
+	r.get { Youtube::Search::do_search }
+end
