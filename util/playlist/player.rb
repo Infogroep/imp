@@ -208,6 +208,14 @@ class Player
 		end
 	end
 
+	def find_media(id)
+		synchronized do
+			media = @playlist.find_media_by_id(id)
+			raise PlayerError("Can't find requested media") if not media
+			JSON.generate(media)
+		end
+	end
+
 	private
 
 	##

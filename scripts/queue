@@ -1,0 +1,77 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require_relative '../../util/routing/routing'
+
+module Queue
+	def self.queue
+		spawn('util/player','playlist')
+	end
+
+	def self.enqueue
+		#Add an item to the queue
+	end
+
+	def self.get_item(id)
+		spawn('util/player', 'find_media', id)
+	end
+
+	def self.shuffle
+		spawn('util/player', 'shuffle')
+	end
+
+	def self.magic_shuffle
+		#Moves items from regex to front
+	end
+
+	def self.magic_shuffle(id)
+		spawn('util/player', 'magic_shuffle' id)
+	end
+
+	def self.delete
+		#read from std-in and delete
+	end
+
+	def self.delete(id)
+		spawn('util/player', 'dequeue', id)
+	end
+
+	def self.delete_regex
+		#remove items from regex from queue
+	end
+
+	def self.to_front
+
+	end
+
+	def self.to_front(id)
+		#Move an item to the front of the queue
+
+	end
+
+	def self.enqueue_to_front(id)
+		#Enqeue an item to the front of the queue
+	end
+
+
+
+
+
+
+end
+
+Routing::route do |r|
+	r.get { Queue::queue }
+	r.get [:id] { |b| Queue::get_item b[:id] } 
+	r.post [:item] { |b| Queue::enqueue b[:id]}
+	r.shuffle { Queue::shuffle }
+	r.magic_shuffle { Queue::magic_shuffle }
+	r.magic_shuffle [:id] { |b| Queue::magic_shuffle b[:id] }
+	r.delete { Queue::delete }
+	r.delete [:id] { |b| Queue::delete b[:id] }
+	r.delete_regex { Queue::delete_regex }
+	r.to_front { Queue::to_front }
+	r.to_front [:id] { |b| Queue::to_front b[:id] }
+	r.enqueue_to_front [:id] { |b| Queue::enqueue_to_front b[:id] }
+
+end

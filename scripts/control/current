@@ -12,35 +12,35 @@ module Current
 	# Pause the current media
 	def self.pause
 		puts "Pause!"
-		spawn('util/player','--pause')
+		spawn('util/player','pause')
 	end
 
 	##
 	# Stop the current media
 	def self.stop
 		puts "Stop!"
-		spawn('util/player','--stop')
+		spawn('util/player','stop')
 	end
 
 	##
 	# Skip the current media
 	def self.skip
 		puts "Skip!"
-		spawn('util/player','--skip')
+		spawn('util/player','skip')
 	end
 
 	##
 	# Play the previous media
 	def self.previous
 		puts "Previous!"
-		spawn('util/player','--previous')
+		spawn('util/player','previous')
 	end
 
 	##
 	# Restart the current song from the beginning
 	def self.replay
 		puts "Replay!"
-		spawn('util/player', '--replay')
+		spawn('util/player', 'replay')
 	end
 end
 
