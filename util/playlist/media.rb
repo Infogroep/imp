@@ -46,7 +46,7 @@ class Media
 	def load_info(do_fingerprint, info = {})
 		fingerprint if do_fingerprint
 
-		info.each { |k,v| @info[k.downcase] = v }
+		info.each { |k,v| @info[k.downcase.to_s] = v }
 	end
 
 	##

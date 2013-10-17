@@ -12,23 +12,23 @@ options = {}
 OptionParser.new do |opts|
 	# Concerning enqueuing of files
 	opts.on("--author AUTHOR") do |author|
-		info[:author] = author
+		info["author"] = author
 	end
 
 	opts.on("--title TITLE") do |title|
-		info[:title] = title
+		info["title"] = title
 	end
 
 	opts.on("--user USER") do |user|
-		info[:user] = user
+		info["user"] = user
 	end
 
 	opts.on("--duration DURATION") do |duration|
-		info[:duration] = duration
+		info["duration"] = duration
 	end
 
 	opts.on("--downloadprogress PERCENTAGE") do |percentage|
-		info[:downloadprogress] = percentage
+		info["downloadprogress"] = percentage
 	end
 
 	opts.on("-t","--tag TAG",/[A-Za-z]+=.+/m) do |tagspec|
