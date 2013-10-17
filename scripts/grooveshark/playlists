@@ -9,11 +9,6 @@ require_relative '../../util/routing/routing'
 
 @client = Grooveshark::Client.new
 session = @client.session
-begin 
-	user = @client.login('ayrton@infogroep.be','$Hrubb3rY')
-rescue Grooveshark::InvalidAuthentication
-	puts "Ooops! Wrong username or password"
-end
 
 ##
 # Part of the /grooveshark/playlists script.
