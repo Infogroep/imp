@@ -1,0 +1,13 @@
+#!/bin/bash
+
+buffer_size=100000
+
+if [[ "$1" == "--here" ]]; then
+	shift
+
+	# Download, direct output to a cached enqueuer.
+	# Run in background to return immediately.
+	curl "$uri" | "$util/enqueuecached" "$@" &
+else
+	"$0" "--here" "$@" & disown
+fi
