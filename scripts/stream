@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo 'text/plain'
+util/player enqueue "$(< /dev/stdin)"
