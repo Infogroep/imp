@@ -1,0 +1,4 @@
+#!/bin/bash
+
+detext="$(< /dev/stdin)"
+util/player enqueue --title "TTS: $detext" "http://tts-api.com/tts.mp3?q=$detext"
