@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+
+puts 'application/json'
+
+require_relative '../util/favorites/favorites'
+require_relative '../util/routing/routing'
+
+
+module FavoriteOperations
+	def self.enqueue(name)
+
+	end
+
+	def self.list
+		puts JSON.generate(Favorites.select(:name).all.map { |f| {
+			name: name
+		} })
+	end
+
+	def self.post
+		Favorite.create!(JSON.parse(STDIN.gets))
+	end
+end
+
+Routing::route do |r|
+	r.enqueue [:name] { |b| FavoriteOperations::enqueue b[:name] }
+	r.get { FavoriteOperations::list }
+	r.post { FavoriteOperations::post }
+end

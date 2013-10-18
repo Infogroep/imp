@@ -33,11 +33,6 @@ class Media
 		@info = {}
 
 		load_info(do_fingerprint,info)
-
-		@info["user"] ||= "John Doe"
-		@info["title"] ||= "Unknown"
-		@info["artist"] ||= "Unknown"
-		@info["duration"] ||= "--:--"
 	end
 
 	##

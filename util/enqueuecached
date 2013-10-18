@@ -9,7 +9,7 @@ reachedend=0                                 # To prevent a locked wait loop.
 
 {
 	# Wait until we have at least $buffer_size data before we queue the file.
-	while [[ $(stat -c %s "$file") < $buffer_size && $reachedend == 0 ]]; do
+	while (( $(stat -c %s "$file") < $buffer_size && $reachedend == 0 )); do
 		sleep 0.5
 	done
 
