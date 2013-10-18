@@ -4,6 +4,7 @@ class CreateFavorites < ActiveRecord::Migration
       t.string :name
       t.string :user
       t.boolean :is_public
+      t.text :keywords
       t.string :plugin
       t.text :options
     end
