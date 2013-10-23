@@ -7,23 +7,38 @@ require_relative '../util/routing/routing'
 
 
 module FavoriteOperations
-	def self.enqueue(name)
+	include Favorites::Favorites
 
+	def self.enqueue(id)
+		f = Favorite.find id
+		spawn("util/favorites/types/#{f.type}", *f.options)
 	end
 
 	def self.list
-		puts JSON.generate(Favorites.select(:name).all.map { |f| {
-			name: name
-		} })
+		puts JSON.generate(Favorite.select("id,name,user,is_public,keywords").first.attributes)
 	end
 
 	def self.post
 		Favorite.create!(JSON.parse(STDIN.gets))
 	end
+
+	def self.search
+		query = JSON.parse(STDIN.gets)
+		f = Favorite
+		query.gets
+	end
+
+	def self.patch(options)
+		f = find_favorite(options)
+
+		raise "Couldn't find favorite" unless f
+
+		f.update!(JSON.parse(STDIN.gets))
+	end
 end
 
 Routing::route do |r|
-	r.enqueue [:name] { |b| FavoriteOperations::enqueue b[:name] }
+	r.enqueue [:id] { |b| FavoriteOperations::enqueue b[:id] }
 	r.get { FavoriteOperations::list }
 	r.post { FavoriteOperations::post }
 end

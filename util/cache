@@ -21,7 +21,7 @@ module Cache
 	end
 
 	##
-	# Remove a specific file from the cache
+	# Remove a specific +file+ from the cache
 	def self.remove_file(file)
 		`rm tmp/cache/#{file}`
 	end

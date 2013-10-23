@@ -43,11 +43,15 @@ module PlaylistQueue
 	end
 
 	def self.delete
+		spawn('util/player', 'flush')
+	end
+
+	def self.delete_list
 		ids = JSON.parse(gets)
 		ids.each { |id| wait spawn('util/player','dequeue',id) }
 	end
 
-	def self.delete(id)
+	def self.delete_item(id)
 		spawn('util/player', 'dequeue', id)
 	end
 
@@ -95,7 +99,8 @@ Routing::route do |r|
 	r.magic_shuffle { PlaylistQueue::magic_shuffle }
 	r.magic_shuffle [:id] { |b| PlaylistQueue::magic_shuffle b[:id] }
 	r.delete { PlaylistQueue::delete }
-	r.delete [:id] { |b| PlaylistQueue::delete b[:id] }
+	r.delete [:id] { |b| PlaylistQueue::delete_item b[:id] }
+	r.delete_list { PlaylistQueue::delete_list }
 	r.delete_regex { PlaylistQueue::delete_regex }
 	r.to_front { PlaylistQueue::to_front }
 	r.to_front [:id] { |b| PlaylistQueue::to_front b[:id] }

@@ -3,7 +3,7 @@ docdir:
 	mkdir -p doc
 
 rdoc:	docdir
-	rdoc -o doc/rdoc
+	rdoc -o doc/rdoc --include scripts,util -C9
 
 epydoc: docdir
 	{ \
