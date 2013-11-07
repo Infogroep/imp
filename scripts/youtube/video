@@ -29,7 +29,7 @@ module Youtube
 				"-t","title=#{response.data.items[0].snippet.title}",
 				"-t","artist=#{response.data.items[0].snippet.channelTitle}",
 				"-t","description=#{response.data.items[0].snippet.description}",
-				"-t","duration=#{Duration.new(response.data.items[0].contentDetails.duration).format("%m:%s")}",
+				"-t","duration=#{Duration.new(response.data.items[0].contentDetails.duration).total}",
 				"http://www.youtube.com/watch?v=#{id}")
 		end
 
