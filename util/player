@@ -9,6 +9,9 @@ player = DRbObject.new_with_uri("drbunix:/var/tmp/imp-player.socket")
 
 info = {}
 options = {}
+
+info["user"] = ENV["IMP_REQUESTING_USER"] if ENV["IMP_REQUESTING_USER"]
+
 OptionParser.new do |opts|
 	# Concerning enqueuing of files
 	opts.on("--author AUTHOR") do |author|

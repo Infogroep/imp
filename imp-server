@@ -6,6 +6,7 @@ from twisted.spread import pb
 from twisted.web.resource import Resource
 from twisted.python import log
 from os import path
+import os
 import subprocess
 
 class Script(Resource):
@@ -38,12 +39,17 @@ class Script(Resource):
 		wrapper_script = path.join(".","script_wrapper")
 		(the_script,the_args) = self.find_suitable_script(request.postpath)
 		content_type = request.getHeader("Content-Type") or "text/plain"
+		requesting_user = request.getHeader("Imp-Requesting-User")
+
+		env = os.environ.copy()
+		if not requesting_user is None:
+			env["IMP_REQUESTING_USER"] = requesting_user
 		
 		p = ScriptProtocol(request)
 		reactor.spawnProcess(p, 
 		                    wrapper_script,
 		                    [wrapper_script,the_script,content_type,request.method] + the_args,
-		                    None)
+		                    env)
 		return server.NOT_DONE_YET
 
 class ScriptProtocol(protocol.ProcessProtocol, pb.Viewable):
