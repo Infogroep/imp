@@ -2,8 +2,8 @@
 
 buffer_size=100000
 
-
-file="tmp/cache/$(util/cache reserve_file)"  # Reserve a cache file.
+cacheid="$(util/cache reserve_file)"         # Reserve a cache file.
+file="tmp/cache/$cacheid"                    # Turn the cache id into the file name.
 id=""                                        # This will hold our media ID.
 reachedend=0                                 # To prevent a locked wait loop.
 
@@ -14,7 +14,7 @@ reachedend=0                                 # To prevent a locked wait loop.
 	done
 
 	# Queue the file.
-	id="$(util/player enqueue "$@" "$file")"
+	id="$(util/player enqueue --attach-file "$cacheid" "$@" "$file")"
 } & # This block is forked
 
 # Write stdin to a file.
@@ -23,7 +23,7 @@ cat > "$file"
 # If our fork already enqueued the file, we will just trigger the
 # fingerprinting process again to make sure it has all the info.
 if [[ ! -z "$id" ]]; then
-	util/player reevaluate "$@" "$id"
+	util/player reevaluate --attach-file "$cacheid" "$@" "$id"
 fi
 
 # Notify our fork that we received the entire file if it

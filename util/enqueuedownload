@@ -1,7 +1,5 @@
 #!/bin/bash
 
-buffer_size=100000
-
 if [[ "$1" == "--here" ]]; then
 	shift
 

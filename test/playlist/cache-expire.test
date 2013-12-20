@@ -1,0 +1,51 @@
+#!/bin/bash
+
+function succeedtest () {
+	echo "TEST SUCCESS" 1>&2
+	teardown
+	exit 0
+}
+
+function failtest () {
+	echo "$1" 1>&2
+	teardown
+	exit 1
+}
+
+# ** SETUP **
+function setup () {
+	ruby util/playlist/playlist_daemon.rb &
+	ruby_pid="$!"
+
+	sleep 2
+
+	rm -rf tmp/cache/*
+
+	fileid="$(util/cache reserve_file)"
+	file="tmp/cache/$fileid"
+}
+
+# ** TEARDOWN **
+function teardown () {
+	kill "$ruby_pid"
+	rm -rf tmp/cache/*
+}
+
+# ** MAIN **
+
+setup
+
+# 1: pushing more than 200 songs onto history should expire cache files of the oldest one
+util/player enqueue --title TEST --attach-file "$fileid" "$file"
+util/player next
+
+for (( i = 0; i < 200; i++ )); do
+	util/player enqueue --title TEST_PADDING "$file"
+	util/player next
+done
+
+if [[ -e "$file" ]]; then
+	failtest "pushing more than 200 songs onto history should expire cache files of the oldest one"
+fi
+
+succeedtest

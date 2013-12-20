@@ -13,7 +13,16 @@ epydoc: docdir
 
 doc:	rdoc epydoc
 
-.PHONY:	docdir rdoc epydoc doc
+test:
+	( \
+		shopt -s globstar; \
+		for file in test/**/*.test; do \
+			chmod +x "$$file"; \
+			"$$file"; \
+		done \
+	)
+
+.PHONY:	docdir rdoc epydoc doc test
 
 
 

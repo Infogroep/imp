@@ -22,15 +22,24 @@ module Cache
 
 	##
 	# Remove a specific +file+ from the cache
-	def self.remove_file(file)
-		`rm tmp/cache/#{file}`
+	def self.remove_files files
+		files.each do |file|
+			if not file =~ /^[0-9a-f-]+$/
+				STDERR.puts 'Attempt to pass disallowed file ID'
+				exit 1
+			end
+		end
+		puts files
+		Process.wait spawn 'rm', *files.map { |file| "tmp/cache/#{file}" }
 	end
+end
+
+if ARGV[0] == "remove_files"
+	Cache::remove_files ARGV.drop(1)
+	exit 0
 end
 
 Routing::route ARGV do |r|
 	r.reserve_file { puts Cache::reserve_file }
 	r.cleanup { Cache::cleanup }
-	r.remove_file [:file], file: /[0-9a-f-]+/ do
-		Cache::remove_file b[:file]
-	end
 end

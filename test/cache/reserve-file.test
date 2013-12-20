@@ -1,0 +1,38 @@
+#!/bin/bash
+
+function succeedtest () {
+	echo "TEST SUCCESS" 1>&2
+	teardown
+	exit 0
+}
+
+function failtest () {
+	echo "$1" 1>&2
+	teardown
+	exit 1
+}
+
+# ** SETUP **
+function setup () {
+	rm -rf tmp/cache/*
+}
+
+# ** TEARDOWN **
+function teardown () {
+	rm -rf tmp/cache/*
+}
+
+
+# ** MAIN **
+
+setup
+
+# 1: util/cache reserve_file should create a new file and return its ID
+fileid="$(util/cache reserve_file)"
+file="tmp/cache/$fileid"
+
+if [[ ! -e "$file" ]]; then
+	failtest "'util/cache reserve_file' should create a new file with id $fileid and return the id"
+fi
+
+succeedtest

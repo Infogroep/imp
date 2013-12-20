@@ -8,7 +8,9 @@ DRb.start_service
 player = DRbObject.new_with_uri("drbunix:/var/tmp/imp-player.socket")
 
 info = {}
-options = {}
+options = {
+	attached_files: []
+}
 
 info["user"] = ENV["IMP_REQUESTING_USER"] if ENV["IMP_REQUESTING_USER"]
 
@@ -42,6 +44,10 @@ OptionParser.new do |opts|
 	opts.on("--[no-]fingerprint") do |f|
 		options[:fingerprint] = f
 	end
+
+	opts.on("--attach-file FILE") do |file|
+		options[:attached_files].push(file)
+	end
 end.parse!
 
 Routing::route ARGV do |r|
@@ -65,7 +71,7 @@ Routing::route ARGV do |r|
 	r.replay { player.replay }
 	r.enqueue [:item] { |b| puts player.enqueue b[:item], info, options }
 	r.reevaluate [:item] { |b| player.reevaluate b[:item], info, options }
-	
+	r.attach_file [:item, :file] { |b| player.attach_files b[:item], [b[:file]] }
 	r.find_media [:id] { |b| puts player.find_media b[:id] }
 	r.to_front [:id] { |b| player.to_front b[:id] }
 end

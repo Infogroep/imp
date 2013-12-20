@@ -27,10 +27,11 @@ class Media
 	#
 	# Optionally takes hash with preset tags which will override the
 	# fingerprinted tags.
-	def initialize(uri, do_fingerprint, info = {})
+	def initialize(uri, do_fingerprint, attached_files, info = {})
 		@id = SecureRandom.uuid
 		@uri = uri
 		@info = {}
+		@attached_files = attached_files
 
 		load_info(do_fingerprint,info)
 	end
@@ -57,6 +58,15 @@ class Media
 		else
 			@info[methname.downcase]
 		end
+	end
+
+	def attach_files(files)
+		@attached_files.concat files
+		@attached_files.uniq!
+	end
+
+	def expire!
+		Process.wait spawn 'util/cache', 'remove_files', *@attached_files
 	end
 
 	def to_h

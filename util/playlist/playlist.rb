@@ -30,6 +30,7 @@ class Playlist
 		return nil if @queue.empty?
 		
 		@history<<@queue.first
+		@history.shift.expire! if @history.size > 200
 		@queue.shift
 		@queue.first
 	end

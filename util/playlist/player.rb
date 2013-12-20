@@ -180,7 +180,7 @@ class Player
 	# Returns the media ID.
 	def enqueue(uri, info = {}, options = {})
 		synchronized do
-			media = Media.new(uri, options[:fingerprint], info)
+			media = Media.new(uri, options[:fingerprint], options[:attached_files], info)
 			@playlist.add(media)
 			puts "Geadd"
 			play_current if not is_playing?
@@ -205,6 +205,15 @@ class Player
 			raise PlayerError("Can't find requested media") if not media
 
 			media.load_info(options[:fingerprint],info)
+		end
+	end
+
+	def attach_files(id, files)
+		synchronized do
+			media = @playlist.find_media_by_id(id)
+			raise PlayerError("Can't find requested media") if not media
+
+			media.attach_files(files)
 		end
 	end
 
