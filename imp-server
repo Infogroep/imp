@@ -33,7 +33,7 @@ class Script(Resource):
 				if path.isfile(main_path):
 					return (main_path,remainder_array)
 
-		raise BaseException("Unknown script")
+		raise BaseException("Unknown script: " + apply(path.join, patharray))
 
 	def render(self, request):
 		wrapper_script = path.join(".","script_wrapper")
