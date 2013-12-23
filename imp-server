@@ -56,27 +56,6 @@ class Script(Resource):
 		return server.NOT_DONE_YET
 
 """
-Makes sure we don't get already stopped exceptions
-"""
-class FileBodyProducerWrapper(FileBodyProducer):
-	def __init__(self, inputFile):
-		FileBodyProducer.__init__(self, inputFile)
-		self.alreadyStopped = False
-
-	def setAlreadyStopped(self, arg):
-		self.alreadyStopped = True
-		return arg
-
-	def startProducing(self, consumer):
-		d = FileBodyProducer.startProducing(self, consumer)
-		d.addCallback(self.setAlreadyStopped)
-		return d
-
-	def stopProducing(self):
-		if not self.alreadyStopped:
-			FileBodyProducer.stopProducing(self)
-
-"""
 Ugly hacks galore here :(
 """
 class FakeSeeker():
