@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from twisted.internet import reactor, protocol
+from twisted.web import http
 from twisted.web import server
 from twisted.spread import pb
 from twisted.web.resource import Resource
@@ -47,6 +48,7 @@ class Script(Resource):
 			env["IMP_REQUESTING_USER"] = requesting_user
 		
 		p = ScriptProtocol(request)
+		request.content = p
 		reactor.spawnProcess(p, 
 		                    wrapper_script,
 		                    [wrapper_script,the_script,content_type,request.method] + the_args,
@@ -73,6 +75,47 @@ class FileBodyProducerWrapper(FileBodyProducer):
 	def stopProducing(self):
 		if not self.alreadyStopped:
 			FileBodyProducer.stopProducing(self)
+
+"""
+Ugly hacks galore here :(
+"""
+class FakeSeeker():
+	def seek(self,ignore,ignore2):
+		pass
+
+"""
+Normal requests wait until everything is received before rendering.
+This one only waits until it received the headers, and expects the resource
+to set the content destination.
+
+TODO: Possibly a problem with buffer overflow, in that case use
+      an intermediary file after all, but start reading immediately.
+"""
+class LiveRequest(server.Request):
+	_alreadyReceived = False
+	content = FakeSeeker()
+
+	def gotLength(self, length):
+		pass
+
+	def requestReceived(self, command, path, version):
+		if self._alreadyReceived:
+			return
+
+		self._alreadyReceived = True
+
+		server.Request.requestReceived(self, command, path, version)
+class LiveHTTPChannel(http.HTTPChannel):
+	def allHeadersReceived(self):
+		http.HTTPChannel.allHeadersReceived(self)
+		self.requests[-1].requestReceived(self._command, self._path, self._version)
+
+
+class LiveSite(server.Site):
+	requestFactory = LiveRequest
+	protocol = LiveHTTPChannel
+
+
 
 class ScriptProtocol(protocol.ProcessProtocol, pb.Viewable):
 	got_content_type = False
@@ -104,20 +147,16 @@ class ScriptProtocol(protocol.ProcessProtocol, pb.Viewable):
 
 	def connectionMade(self):
 		self.request.registerProducer(self, 1)
-		self.request.content.seek(0, 0)
-		self.stdinWriter = FileBodyProducerWrapper(self.request.content)
 
-		# Request tries to close my fID when the connection closes. I don't want that.
-		self.request.content = None
+	def seek(self, ignore, ignore2):
+		pass
+	
+	def write(self,data):
+		self.transport.write(data)
 
-		whenDone = self.stdinWriter.startProducing(self.transport)
-		whenDone.addCallback(self.whenDoneReadingFromStdin)
-		self.transport.registerProducer(self.stdinWriter, True)
-
-	def whenDoneReadingFromStdin(self, arg):
+	def close(self):
 		print "closing input"
 		self.transport.closeStdin()
-		return arg
 
 	def errReceived(self, error):
 		self.errortext = self.errortext + error
@@ -145,6 +184,6 @@ class ScriptProtocol(protocol.ProcessProtocol, pb.Viewable):
 
 
 root = Script()
-factory = server.Site(root)
+factory = LiveSite(root)
 reactor.listenTCP(8080, factory)
 reactor.run()
