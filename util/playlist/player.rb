@@ -29,7 +29,7 @@ class Player
 	def play_current
 		synchronized do
 			puts "Playing"
-			raise PlayerError("Queue is empty") if @playlist.queue.empty?
+			raise PlayerError, "Queue is empty" if @playlist.queue.empty?
 			@interface.add @playlist.current.uri
 		end
 	end
@@ -202,7 +202,7 @@ class Player
 	def reevaluate(id, info = {}, options = {})
 		synchronized do
 			media = @playlist.find_media_by_id(id)
-			raise PlayerError("Can't find requested media") if not media
+			raise PlayerError, "Can't find requested media" if not media
 
 			media.load_info(options[:fingerprint],info)
 		end
@@ -211,7 +211,7 @@ class Player
 	def attach_files(id, files)
 		synchronized do
 			media = @playlist.find_media_by_id(id)
-			raise PlayerError("Can't find requested media") if not media
+			raise PlayerError, "Can't find requested media" if not media
 
 			media.attach_files(files)
 		end
@@ -220,7 +220,7 @@ class Player
 	def find_media(id)
 		synchronized do
 			media = @playlist.find_media_by_id(id)
-			raise PlayerError("Can't find requested media") if not media
+			raise PlayerError, "Can't find requested media" if not media
 			JSON.generate(media.to_h)
 		end
 	end

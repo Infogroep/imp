@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-puts 'application/json'
+puts 'application/json' unless ARGV[1].downcase == "download"
 
 require 'json'
 require 'optparse'
@@ -8,7 +8,25 @@ require_relative '../util/routing/routing'
 
 module PlaylistQueue
 	def self.queue
-		spawn('util/player','playlist')
+		Process.wait spawn('util/player','playlist')
+	end
+
+	def self.download(id)
+		mJSON = `util/player find_media #{id}`
+		media = JSON.parse(mJSON)
+
+		unless media["uri"].start_with? 'tmp/cache'
+			puts 'application/json'
+			raise "Not a cache media"
+		end
+
+		if media["info"]["mimetype"]
+			puts media["info"]["mimetype"]
+		else
+			puts 'application/octet-stream'
+		end
+
+		Process.wait spawn 'cat', media["uri"]
 	end
 
 	#TODO
@@ -17,11 +35,11 @@ module PlaylistQueue
 	end
 
 	def self.get_item(id)
-		spawn('util/player', 'find_media', id)
+		Process.wait spawn('util/player', 'find_media', id)
 	end
 
 	def self.shuffle
-		spawn('util/player', 'shuffle')
+		Process.wait spawn('util/player', 'shuffle')
 	end
 
 	def self.magic_shuffle
@@ -39,20 +57,20 @@ module PlaylistQueue
 	end
 
 	def self.magic_shuffle(id)
-		spawn('util/player', 'magic_shuffle', id)
+		Process.wait spawn('util/player', 'magic_shuffle', id)
 	end
 
 	def self.delete
-		spawn('util/player', 'flush')
+		Process.wait spawn('util/player', 'flush')
 	end
 
 	def self.delete_list
 		ids = JSON.parse(gets)
-		ids.each { |id| wait spawn('util/player','dequeue',id) }
+		ids.each { |id| Process.wait spawn('util/player','dequeue',id) }
 	end
 
 	def self.delete_item(id)
-		spawn('util/player', 'dequeue', id)
+		Process.wait spawn('util/player', 'dequeue', id)
 	end
 
 	def self.delete_regex
@@ -82,7 +100,7 @@ module PlaylistQueue
 	end
 
 	def self.to_front(id)
-		spawn('util/player', 'to_front', id)
+		Process.wait spawn('util/player', 'to_front', id)
 	end
 
 	def self.enqueue_to_front(id)
@@ -94,6 +112,7 @@ end
 Routing::route do |r|
 	r.get { PlaylistQueue::queue }
 	r.get [:id] { |b| PlaylistQueue::get_item b[:id] } 
+	r.download [:id], { id: /[0-9-]+/ } { |b| PlaylistQueue::download b[:id] }
 	r.post [:item] { |b| PlaylistQueue::enqueue b[:id]}
 	r.shuffle { PlaylistQueue::shuffle }
 	r.magic_shuffle { PlaylistQueue::magic_shuffle }

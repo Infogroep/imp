@@ -100,6 +100,7 @@ class ScriptProtocol(protocol.ProcessProtocol, pb.Viewable):
 	got_content_type = False
 	content_type = ''
 	errortext = ''
+	requestFinished = False
 
 	def view_resumeProducing(self, issuer):
 		self.resumeProducing()
@@ -123,8 +124,10 @@ class ScriptProtocol(protocol.ProcessProtocol, pb.Viewable):
 
 	def __init__(self, request):
 		self.request = request
+		self.request.notifyFinish().addBoth(self.onRequestFinished)
 
 	def connectionMade(self):
+		print "connection established"
 		self.request.registerProducer(self, 1)
 
 	def seek(self, ignore, ignore2):
@@ -153,13 +156,17 @@ class ScriptProtocol(protocol.ProcessProtocol, pb.Viewable):
 		else:
 			self.request.write(output)
 
+	def onRequestFinished(self,ignore):
+		self.requestFinished = True
+
 	def processEnded(self, reason):
 		if reason.value.exitCode != 0:
 			log.err("Script %s exited with exit code %s" % (self.request.uri, reason.value.exitCode))
 		if self.errortext:
 			log.err("Errors from script %s: %s" % (self.request.uri, self.errortext))
 		self.request.unregisterProducer()
-		self.request.finish()
+		if not self.requestFinished:
+			self.request.finish()
 
 
 root = Script()
