@@ -143,7 +143,7 @@ class Player
 	# Returns the playlist's history
 	def history
 		synchronized do
-			JSON.generate(@playlist.history.map { |m| m.to_h })
+			JSON.generate(@playlist.history.reverse.map { |m| m.to_h })
 		end
 	end
 
