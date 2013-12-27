@@ -24,9 +24,9 @@ module GroovesharkPlaylists
 		#song = songs.first
 		songs.each do |song|
 			url = @client.get_song_url(song)
-			spawn('util/enqueuehttp',url)
+			Process.wait spawn('util/enqueuehttp',url)
 		end
-		spawn('util/player','skip')
+		Process.wait spawn('util/player','skip')
 	end
 end
 

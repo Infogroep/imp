@@ -11,7 +11,7 @@ module FavoriteOperations
 
 	def self.enqueue(id)
 		f = Favorite.find id
-		spawn("util/favorites/types/#{f.type}", *f.options)
+		Process.wait spawn("util/favorites/types/#{f.type}", *f.options)
 	end
 
 	def self.list

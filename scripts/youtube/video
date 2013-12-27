@@ -23,7 +23,7 @@ module Youtube
 
 			raise "Unknown video" if response.data.items.empty?
 
-			spawn(
+			Process.wait spawn(
 				"util/player",
 				"enqueue",
 				"-t","title=#{response.data.items[0].snippet.title}",

@@ -9,7 +9,7 @@ module SoundCloudTrack
 		client = Soundcloud.new(client_id: '4a4922f76dab4f90e757b13b67e29222')
 		track = client.get("/tracks/#{id}")
 		stream_url = client.get(track.stream_url, allow_redirects: true)
-		spawn(
+		Process.wait spawn(
 			"util/player",
 			"enqueue",
 			"-t","title=#{track.title}",
