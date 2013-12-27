@@ -67,16 +67,27 @@ Normal requests wait until everything is received before rendering.
 This one only waits until it received the headers, and expects the resource
 to set the content destination.
 
+This is sort of a hack, because I'm overwriting default behaviour,
+but it is semantically sound mostly.
+
 TODO: Possibly a problem with buffer overflow, in that case use
       an intermediary file after all, but start reading immediately.
 """
 class LiveRequest(server.Request):
 	_alreadyReceived = False
-	content = FakeSeeker()
 
+	"""
+	I want the resource to determine the content, so I'm loading a dummy
+	object instead of a file/stringIO object.
+	"""
 	def gotLength(self, length):
-		pass
+		self.content = FakeSeeker()
 
+	"""
+	Our custom HTTP channel will receive the request when the headers are received,
+	but the default code will receive it again when all the data is received.
+	I only want to receive it once so I ignore the second call.
+	"""
 	def requestReceived(self, command, path, version):
 		if self._alreadyReceived:
 			return
@@ -84,12 +95,22 @@ class LiveRequest(server.Request):
 		self._alreadyReceived = True
 
 		server.Request.requestReceived(self, command, path, version)
+
+"""
+A channel for LiveRequests
+"""
 class LiveHTTPChannel(http.HTTPChannel):
+	"""
+	This channel receives the request once the headers are received.
+	"""
 	def allHeadersReceived(self):
 		http.HTTPChannel.allHeadersReceived(self)
 		self.requests[-1].requestReceived(self._command, self._path, self._version)
 
-
+"""
+A Site subclass which initializes the Site to use
+LiveRequests and LiveHTTPChannels
+"""
 class LiveSite(server.Site):
 	requestFactory = LiveRequest
 	protocol = LiveHTTPChannel
