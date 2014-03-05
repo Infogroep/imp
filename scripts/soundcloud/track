@@ -1,22 +1,27 @@
 #!/usr/bin/env ruby
 
 require 'rubygems'
-require 'soundcloud'
+require_relative '../../util/soundcloud/soundcloud_api'
 require_relative '../../util/routing/routing'
+
+puts 'application/json'
 
 module SoundCloudTrack
 	def self.enqueue(id)
-		client = Soundcloud.new(client_id: '4a4922f76dab4f90e757b13b67e29222')
+		client = SoundcloudAPI::create
 		track = client.get("/tracks/#{id}")
-		stream_url = client.get(track.stream_url, allow_redirects: true)
-		Process.wait spawn(
-			"util/player",
-			"enqueue",
-			"-t","title=#{track.title}",
-			"-t","artist=#{track.user.username}",
-			"-t","description=#{track.description}",
-			"-t","duration=#{track.duration / 1000}",
-			stream_url.location)
+		begin
+			stream_url = client.get(track.stream_url, {}, follow_redirects: false)
+		rescue SoundCloud::ResponseError => e
+			Process.wait spawn(
+				"util/enqueuedownload",
+				e.response["location"],
+				"--fingerprint",
+				"-t","title=#{track.title}",
+				"-t","artist=#{track.user.username}",
+				"-t","description=#{track.description}",
+				"-t","duration=#{track.duration / 1000}")
+		end
 	end
 end
 

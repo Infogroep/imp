@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require_relative '../../util/soundcloud/soundcloud_api'
+require_relative '../../util/routing/routing'
+
+module SoundCloudURL
+	def self.enqueue
+		client = SoundcloudAPI::create
+		track_url = STDIN.gets
+		track_id = client.get("/resolve", url: track_url)
+		exec('scripts/soundcloud/track',ARGV[0],"ENQUEUE",track_id.id.to_s)
+	end
+end
+
+Routing::route do |r|
+	r.enqueue { SoundCloudURL::enqueue }
+end
