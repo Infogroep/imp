@@ -50,9 +50,9 @@ class Script(Resource):
 		p = ScriptProtocol(request)
 		request.content = p
 		reactor.spawnProcess(p, 
-		                    wrapper_script,
-		                    [wrapper_script,the_script,content_type,request.method] + the_args,
-		                    env)
+							wrapper_script,
+							[wrapper_script,the_script,content_type,request.method] + the_args,
+							env)
 		return server.NOT_DONE_YET
 
 """
@@ -77,11 +77,9 @@ This is sort of a hack, because I'm overwriting default behaviour,
 but it is semantically sound mostly.
 
 TODO: Possibly a problem with buffer overflow, in that case use
-      an intermediary file after all, but start reading immediately.
+	  an intermediary file after all, but start reading immediately.
 """
 class LiveRequest(server.Request):
-	_alreadyReceived = False
-
 	"""
 	I want the resource to determine the content, so I'm loading a dummy
 	object instead of a file/stringIO object.
@@ -89,18 +87,6 @@ class LiveRequest(server.Request):
 	def gotLength(self, length):
 		self.content = FakeSeeker()
 
-	"""
-	Our custom HTTP channel will receive the request when the headers are received,
-	but the default code will receive it again when all the data is received.
-	I only want to receive it once so I ignore the second call.
-	"""
-	def requestReceived(self, command, path, version):
-		if self._alreadyReceived:
-			return
-
-		self._alreadyReceived = True
-
-		server.Request.requestReceived(self, command, path, version)
 
 """
 A channel for LiveRequests
@@ -112,6 +98,28 @@ class LiveHTTPChannel(http.HTTPChannel):
 	def allHeadersReceived(self):
 		http.HTTPChannel.allHeadersReceived(self)
 		self.requests[-1].requestReceived(self._command, self._path, self._version)
+
+	"""
+	Close the content when done
+	"""
+	def allContentReceived(self):
+		command = self._command
+		path = self._path
+		version = self._version
+
+		# reset ALL state variables, so we don't interfere with next request
+		self.length = 0
+		self._receivedHeaderCount = 0
+		self.__first_line = 1
+		self._transferDecoder = None
+		del self._command, self._path, self._version
+
+		# Disable the idle timeout, in case this request takes a long
+		# time to finish generating output.
+		if self.timeOut:
+			self._savedTimeOut = self.setTimeout(None)
+
+		self.requests[-1].content.close()
 
 """
 A Site subclass which initializes the Site to use
