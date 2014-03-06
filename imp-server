@@ -38,7 +38,7 @@ class Script(Resource):
 		raise BaseException("Unknown script: " + apply(path.join, patharray))
 
 	def render(self, request):
-		print "Request from '%s'" % request.getHost()
+		print "Request from '%s'" % request.getClientIP()
 
 		wrapper_script = path.join(".","script_wrapper")
 		(the_script,the_args) = self.find_suitable_script(request.postpath)
