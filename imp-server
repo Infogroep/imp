@@ -104,7 +104,7 @@ class LiveHTTPChannel(http.HTTPChannel):
 		# reset ALL state variables, so we don't interfere with next request
 		self.length = 0
 		self._receivedHeaderCount = 0
-		self.__first_line = 1
+		self._HTTPChannel__first_line = 1
 		self._transferDecoder = None
 		del self._command, self._path, self._version
 
