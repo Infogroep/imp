@@ -1,0 +1,11 @@
+#!/bin/bash
+
+source /etc/profile
+export DISPLAY=:0.0
+rvm use 2.0.0
+mydir="$(dirname "$(readlink -f "$0")")"
+cd "$mydir"
+
+screen -A -m -d -S imp-server ./imp-server
+screen -A -m -d -S imp-playlist ruby util/playlist/playlist_daemon.rb
+

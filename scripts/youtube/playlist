@@ -1,0 +1,71 @@
+#!/usr/bin/env ruby
+
+puts "application/json"
+
+require 'rubygems'
+require 'json'
+require 'ruby-duration'
+
+require_relative '../../util/routing/routing'
+require_relative '../../util/youtube/youtube_api'
+
+module Youtube
+	module Playlist
+		def self.collect_paginated_results client, request_data
+			request_data[:parameters][:maxResults] = 50
+
+			response = client.execute! request_data
+			return false if response.data.items.empty?
+
+			yield response
+
+			while response.data.next_page_token and response.data.next_page_token != ""
+				request_data[:parameters][:pageToken] = response.data.next_page_token
+
+				response = client.execute! request_data
+				yield response
+			end
+
+			true
+		end
+
+		def self.enqueue(id)
+			client = YoutubeAPI.new
+			youtube = client.discovered_api("youtube", "v3")
+
+			# TODO: Catch empty playlist
+			raise "Unknown playlist ID" unless collect_paginated_results client,
+				api_method: youtube.playlist_items.list,
+				parameters: {
+					part: "contentDetails",
+					playlistId: id 
+				} do |batch|
+
+				vidIds = batch.data.items.map { |item| item.content_details.video_id }.join ","
+				response = client.execute!(
+					api_method: youtube.videos.list,
+					parameters: {
+						part: "id,snippet,contentDetails",
+						id: vidIds
+					})
+
+				raise "Empty or corrupt playlist" if response.data.items.empty?
+
+				response.data.items.each do |item|
+					Process.wait spawn(
+						"util/player",
+						"enqueue",
+						"-t","title=#{item.snippet.title}",
+						"-t","artist=#{item.snippet.channel_title}",
+						"-t","description=#{item.snippet.description}",
+						"-t","duration=#{Duration.new(item.content_details.duration).total}",
+						"http://www.youtube.com/watch?v=#{item.id}")
+				end
+			end
+		end
+	end
+end
+
+Routing::route do |r|
+	r.enqueue [:id] { |b| Youtube::Playlist::enqueue b[:id] }
+end
