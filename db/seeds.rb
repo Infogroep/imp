@@ -1,6 +1,6 @@
 # Seeds
 
-include Favorites::Favorites
+include Favorites::Models
 
 Favorite.create!({ name: 'VRT Radio 1', user: 'ig', is_public: true, keywords: [], plugin: 'stream', options: ['http://www.listenlive.eu/vrtradio1-high.m3u'] })
 Favorite.create!({ name: 'VRT Radio 2 Antwerpen', user: 'ig', is_public: true, keywords: [], plugin: 'stream', options: ['http://www.listenlive.eu/vrtra2ant-high.m3u'] })
