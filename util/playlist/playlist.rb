@@ -48,7 +48,7 @@ class Playlist
 	##
 	# Shuffles the queue
 	def shuffle
-		@queue.shuffle
+		@queue.shuffle!
 	end
 
 	##
