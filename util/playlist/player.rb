@@ -110,6 +110,7 @@ class Player
 	def magic_shuffle(id)
 		synchronized do
 			@playlist.magic_shuffle(@playlist.find_media_by_id(id))
+			play_current
 		end
 	end
 
