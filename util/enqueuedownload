@@ -2,10 +2,12 @@
 
 if [[ "$1" == "--here" ]]; then
 	shift
+	uri="$1"
+	shift
 
 	# Download, direct output to a cached enqueuer.
 	# Run in background to return immediately.
-	curl "$uri" | "$util/enqueuecached" "$@" &
+	curl "$uri" 2> /dev/null | "util/enqueuecached" "$@"
 else
 	"$0" "--here" "$@" & disown
 fi

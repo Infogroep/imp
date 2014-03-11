@@ -64,6 +64,12 @@ class FakeSeeker():
 	def seek(self,ignore,ignore2):
 		pass
 
+	def write(self,ignore):
+		pass
+
+	def close(self):
+		pass
+
 """
 Normal requests wait until everything is received before rendering.
 This one only waits until it received the headers, and expects the resource
