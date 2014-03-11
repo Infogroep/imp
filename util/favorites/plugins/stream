@@ -1,0 +1,3 @@
+#!/bin/bash
+
+util/player enqueue --title "Favorite: $IMP_FAV_NAME" "$1"

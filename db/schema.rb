@@ -11,15 +11,25 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131018084836) do
+ActiveRecord::Schema.define(version: 20140310131238) do
 
   create_table "favorites", force: true do |t|
     t.string  "name"
     t.string  "user"
     t.boolean "is_public"
-    t.text    "keywords"
     t.string  "plugin"
     t.text    "options"
   end
+
+  add_index "favorites", ["name"], name: "index_favorites_on_name"
+  add_index "favorites", ["user"], name: "index_favorites_on_user"
+
+  create_table "keywords", force: true do |t|
+    t.string  "keyword"
+    t.integer "favorite_id"
+  end
+
+  add_index "keywords", ["favorite_id"], name: "index_keywords_on_favorite_id"
+  add_index "keywords", ["keyword"], name: "index_keywords_on_keyword"
 
 end

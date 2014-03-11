@@ -1,44 +1,65 @@
 #!/usr/bin/env ruby
 
-puts 'application/json'
+puts 'application/json' unless ARGV[1].casecmp("ENQUEUE") == 0
 
-require_relative '../util/favorites/favorites'
+require 'rubygems'
+require 'active_record'
+require_relative '../util/favorites/models'
 require_relative '../util/routing/routing'
 
+ActiveRecord::Base.configurations = YAML.load(File.read('config/database.yml'))
+ActiveRecord::Base.establish_connection(ActiveRecord::Base.configurations[ENV["RAILS_ENV"]])
 
 module FavoriteOperations
-	include Favorites::Favorites
+	include Favorites::Models
 
-	def self.enqueue(id)
-		f = Favorite.find id
-		Process.wait spawn("util/favorites/types/#{f.type}", *f.options)
+	def self.enqueue keyword
+		kw = Keyword.find_by keyword: keyword
+
+		raise "Unknown keyword" unless kw
+
+		fav = kw.favorite
+
+		Process.wait spawn ({ "IMP_FAV_NAME" => fav.name, "IMP_FAV_USER" => fav.user }), "util/favorites/plugins/#{fav.plugin}", *fav.options
 	end
 
 	def self.list
-		puts JSON.generate(Favorite.select("id,name,user,is_public,keywords").first.attributes)
+		puts JSON.generate Favorite.select("id,name,plugin,user,is_public,options").map { |fav| fav_to_attribute_hash fav }
 	end
 
 	def self.post
-		Favorite.create!(JSON.parse(STDIN.gets))
+		Favorite.create! json_to_attribute_hash STDIN.gets
 	end
 
-	def self.search
-		query = JSON.parse(STDIN.gets)
-		f = Favorite
-		query.gets
-	end
-
-	def self.patch(options)
-		f = find_favorite(options)
+	def self.patch id
+		f = Favorite.find id
 
 		raise "Couldn't find favorite" unless f
 
-		f.update!(JSON.parse(STDIN.gets))
+		f.update! json_to_attribute_hash STDIN.gets
+	end
+
+	def self.delete id
+		Favorite.destroy id
+	end
+
+	private
+	def self.fav_to_attribute_hash fav
+		f = fav.attributes
+		f["keywords"] = fav.keywords.map { |keyword| keyword.keyword }
+		f
+	end
+
+	def self.json_to_attribute_hash json
+		hash = JSON.parse json
+		hash["keywords"] = hash["keywords"].map { |keyword| Keyword.new keyword: keyword } if hash["keywords"]
+		hash
 	end
 end
-
 Routing::route do |r|
-	r.enqueue [:id] { |b| FavoriteOperations::enqueue b[:id] }
+	r.enqueue [:keyword] { |b| FavoriteOperations::enqueue b[:keyword] }
 	r.get { FavoriteOperations::list }
 	r.post { FavoriteOperations::post }
+	r.patch [:id] { |b| FavoriteOperations::patch b[:id] }
+	r.delete [:id] { |b| FavoriteOperations::delete b[:id] }
 end

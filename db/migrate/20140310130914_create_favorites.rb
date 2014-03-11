@@ -3,8 +3,9 @@ class CreateFavorites < ActiveRecord::Migration
     create_table :favorites do |t|
       t.string :name
       t.string :user
+      t.index :name
+      t.index :user
       t.boolean :is_public
-      t.text :keywords
       t.string :plugin
       t.text :options
     end
