@@ -62,7 +62,7 @@ Routing::route ARGV do |r|
 	r.volume [:x] { |b| player.volume b[:x] }
 	r.next { player.next }
 	r.flush { player.flush }
-	r.magic_shuffle { |x| player.magic_shuffle b[:x] }
+	r.magic_shuffle [:id] { |b| player.magic_shuffle b[:id] }
 	r.shuffle {	player.shuffle }
 	r.dequeue [:item] { |b|	player.dequeue b[:item] }
 	r.playlist { puts player.playlist }	
