@@ -3,6 +3,7 @@
 source /etc/profile
 export DISPLAY=:0.0
 rvm use 2.0.0
+export RAILS_ENV=production
 mydir="$(dirname "$(readlink -f "$0")")"
 cd "$mydir"
 
