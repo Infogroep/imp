@@ -125,10 +125,10 @@ class Player
 	##
 	# Removes an item from the playlist
 	#
-	# +item+ is the UUID representing the item
-	def dequeue(item)
+	# +id+ is the UUID representing the item
+	def dequeue(id)
 		synchronized do
-			@playlist.remove(item)
+			@playlist.remove(@playlist.find_media_by_id(id))
 		end
 	end
 
