@@ -51,7 +51,7 @@ module Current
 
 	##
 	# Sets the current time in seconds
-	def self.get_time time
+	def self.seek time
 		Process.wait spawn('util/player','seek',time)
 	end
 
