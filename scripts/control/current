@@ -42,6 +42,24 @@ module Current
 		puts "Replay!"
 		Process.wait spawn('util/player', 'replay')
 	end
+
+	##
+	# Gets the current time in seconds
+	def self.get_time
+		Process.wait spawn('util/player','get_time')
+	end
+
+	##
+	# Sets the current time in seconds
+	def self.get_time time
+		Process.wait spawn('util/player','seek',time)
+	end
+
+	##
+	# Get the total length in seconds
+	def self.get_length
+		Process.wait spawn('util/player','get_length')
+	end
 end
 
 Routing::route do |r|
@@ -50,4 +68,7 @@ Routing::route do |r|
 	r.next { Current::next }
 	r.previous { Current::previous }
 	r.replay { Current::replay }
+	r.get ['time'] { Current::get_time }
+	r.put ['time',:time] { |b| Current::seek b[:time] }
+	r.get ['length'] { Current::get_length }
 end
