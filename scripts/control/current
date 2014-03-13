@@ -51,8 +51,8 @@ module Current
 
 	##
 	# Sets the current time in seconds
-	def self.seek time
-		Process.wait spawn('util/player','seek',time)
+	def self.seek
+		Process.wait spawn('util/player','seek',STDIN.gets)
 	end
 
 	##
@@ -69,6 +69,6 @@ Routing::route do |r|
 	r.previous { Current::previous }
 	r.replay { Current::replay }
 	r.get ['time'] { Current::get_time }
-	r.put ['time',:time] { |b| Current::seek b[:time] }
+	r.put ['time'] { Current::seek }
 	r.get ['length'] { Current::get_length }
 end

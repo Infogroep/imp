@@ -45,6 +45,8 @@ class Script(Resource):
 		content_type = request.getHeader("Content-Type") or "text/plain"
 		requesting_user = request.getHeader("Imp-Requesting-User")
 
+		print "Request done by user '%s'" % requesting_user
+
 		env = os.environ.copy()
 		if not requesting_user is None:
 			env["IMP_REQUESTING_USER"] = requesting_user
