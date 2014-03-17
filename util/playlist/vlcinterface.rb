@@ -40,7 +40,7 @@ class VLCInterface
 	##
 	# Play a media file/stream
 	def add(uri)
-		@mutex.synchronize do
+		synchronized do
 			puts "Playing #{uri}"
 			@vlc.puts "add #{uri}"
 			puts "Waiting for play"
@@ -52,7 +52,7 @@ class VLCInterface
 	##
 	# Start playback
 	def play
-		@mutex.synchronize do
+		synchronized do
 			@vlc.puts "play"
 			wait_for_play true
 		end
@@ -61,7 +61,7 @@ class VLCInterface
 	##
 	# Stop playback
 	def stop
-		@mutex.synchronize do
+		synchronized do
 			@vlc.puts "stop"
 			wait_for_play false
 		end
@@ -70,48 +70,62 @@ class VLCInterface
 	##
 	# Pause playback
 	def pause
-		@vlc.puts "pause"
+		synchronized do
+			@vlc.puts "pause"
+		end
 	end
 
 	##
 	# Check if playback is active
 	def is_playing?
-		@vlc.puts "is_playing"
-		a = @vlc.gets
-		a.to_i == 1
+		synchronized do
+			@vlc.puts "is_playing"
+			a = @vlc.gets
+			a.to_i == 1
+		end
 	end
 
 	##
 	# Get the title of the current media
 	def get_title
-		@vlc.puts "get_title"
-		@vlc.gets.to_s
+		synchronized do
+			@vlc.puts "get_title"
+			@vlc.gets.to_s
+		end
 	end
 
 	##
 	# Get the current position in the media in seconds
 	def get_time
-		@vlc.puts "get_time"
-		@vlc.gets.to_i
+		synchronized do
+			@vlc.puts "get_time"
+			@vlc.gets.to_i
+		end
 	end
 
 	##
 	# Get the length of the current media in seconds
 	def get_length
-		@vlc.puts "get_length"
-		@vlc.gets.to_i
+		synchronized do
+			@vlc.puts "get_length"
+			@vlc.gets.to_i
+		end
 	end
 
 	##
 	# Skip to a certain time in the current media
 	def seek(seconds) 
-		@vlc.puts "seek #{seconds}"
+		synchronized do
+			@vlc.puts "seek #{seconds}"
+		end
 	end
 
 	##
 	# Set the VLC volume
 	def volume(x)
-		@vlc.puts "volume #{x}"
+		synchronized do
+			@vlc.puts "volume #{x}"
+		end
 	end
 
 	private
@@ -121,5 +135,16 @@ class VLCInterface
 			sleep 0.020 # do nothing
 		end
 		@should_be_playing = status
+	end
+
+	private
+	def synchronized
+		if @mutex.owned?
+			yield
+		else
+			@mutex.synchronize do
+				yield
+			end
+		end
 	end
 end
