@@ -39,6 +39,8 @@ class Script(Resource):
 
 	def render(self, request):
 		print "Request from '%s'" % request.getClientIP()
+		print request.method
+		print request.postpath
 
 		wrapper_script = path.join(".","script_wrapper")
 		(the_script,the_args) = self.find_suitable_script(request.postpath)
