@@ -2,14 +2,15 @@
 
 buffer_size=100000
 
-cacheid="$(util/cache reserve_file)"         # Reserve a cache file.
-file="tmp/cache/$cacheid"                    # Turn the cache id into the file name.
-id=""                                        # This will hold our media ID.
-reachedend=0                                 # To prevent a locked wait loop.
+cacheid="$(util/cache reserve_file)"                           # Reserve a cache file.
+file="tmp/cache/$cacheid"                                      # Turn the cache id into the file name.
+id=""                                                          # This will hold our media ID.
+reachedend="$(mktemp "/dev/shm/imp.enqueuecached.XXXXXXXXXX")" # To prevent a locked wait loop.
+echo '0' > "$reachedend"
 
 {
 	# Wait until we have at least $buffer_size data before we queue the file.
-	while (( $(stat -c %s "$file") < $buffer_size && $reachedend == 0 )); do
+	while (( $(stat -c %s "$file") < $buffer_size && $(< "$reachedend") == 0 )); do
 		sleep 0.5
 	done
 
@@ -29,5 +30,6 @@ fi
 # Notify our fork that we received the entire file if it
 # got stuck on a file smaller than $buffer_size.
 # This will also queue our file.
-reachedend=1
-
+echo '1' > "$reachedend"
+wait
+rm "$reachedend"
