@@ -1,6 +1,6 @@
 #!/bin/bash
 
-buffer_size=100000
+buffer_size=2000000
 
 cacheid="$(util/cache reserve_file)"                           # Reserve a cache file.
 file="tmp/cache/$cacheid"                                      # Turn the cache id into the file name.
