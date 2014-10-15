@@ -85,6 +85,17 @@ class Media
 			k, v = line.split("\t",2)
 			@info[k.downcase] = v
 		end
+		finger_cover
 	end
+	##
+	# Get cover information if an embedded cover is available
+	def finger_cover
+	    image = `exiftool -Picture -b #{@uri}`
+	    if image != ""
+	        File.write("tmp/metadata/cover-#{@id}", image)
+	        @info['cover'] = "cover/cover-#{@id}"
+	    end
+	end
+
 end
 

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo 'image/jpg'
+cat tmp/metadata/$3
