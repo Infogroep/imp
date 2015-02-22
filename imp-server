@@ -216,5 +216,5 @@ class ScriptProtocol(protocol.ProcessProtocol, pb.Viewable):
 
 root = Script()
 factory = LiveSite(root)
-reactor.listenTCP(8080, factory)
+reactor.listenTCP(8085, factory)
 reactor.run()
