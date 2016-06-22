@@ -55,7 +55,7 @@ class Script(Resource):
 		
 		p = ScriptProtocol(request)
 		request.setHeader('Access-Control-Allow-Origin', '*')
-		request.setHeader('Access-Control-Allow-Methods', 'GET, NEXT, PREVIOUS, PAUSE, PUT, ENQUEUE, POST')
+		request.setHeader('Access-Control-Allow-Methods', 'GET, NEXT, PREVIOUS, PAUSE, PUT, ENQUEUE, POST, DELETE')
 		request.setHeader('Access-Control-Allow-Headers', 'x-prototype-version,x-requested-with, Content-Type')
 		request.setHeader('Access-Control-Max-Age', 2520)		
 		request.content = p
